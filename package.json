@@ -1,0 +1,22 @@
+{
+  "name": "nft-marketplace",
+  "version": "1.0.0",
+  "description": "NFT Marketplace",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "dev": "lite-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://guthub.com/luca-santarella/NFT-Marketplace"
+  },
+  "author": "Luca Santarella",
+  "license": "MIT",
+  "dependencies": {
+    "lite-server": "^2.6.1"
+  }
+}
