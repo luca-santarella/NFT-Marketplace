@@ -4,7 +4,7 @@
 ##
 ## **General Description**
 
-The following project is a web application which will allow the users to create their own [NFT](https://it.wikipedia.org/wiki/Non-fungible_token) (Non Fungible Token) which sticks to the [ERC721](https://ethereum.org/it/developers/docs/standards/tokens/erc-721/) standard (Ethereum Request for Comment) on the Ethereum blockchain (initially a [Ganache](https://www.trufflesuite.com/ganache) deploy will be done for testing purposes and the on the[Ropsten](https://ethereum.org/en/developers/docs/networks/#testnets) test net).
+The following project is a web application which will allow the users to create their own [NFT](https://it.wikipedia.org/wiki/Non-fungible_token) (Non Fungible Token) which sticks to the [ERC721](https://ethereum.org/it/developers/docs/standards/tokens/erc-721/) standard (Ethereum Request for Comment) on the Ethereum blockchain (initially a [Ganache](https://www.trufflesuite.com/ganache) deploy will be done for testing purposes and the on the [Ropsten](https://ethereum.org/en/developers/docs/networks/#testnets) test net).
 
 The NFTs that are allowed are of two kinds, a string of characters or an image that the user will upload, as far as storage is concerned the application will (initially) have a centralized storage of the NFTs on the server. In a second phase of the project a distributed approach will follow, using the [IPFS](https://ipfs.io/) (Inter Planetary File System) features.
 
