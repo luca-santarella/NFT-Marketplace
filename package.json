@@ -17,6 +17,8 @@
   "author": "Luca Santarella",
   "license": "MIT",
   "dependencies": {
-    "lite-server": "^2.6.1"
+    "@truffle/contract": "^4.3.27",
+    "lite-server": "^2.6.1",
+    "web3": "^1.5.0"
   }
 }
