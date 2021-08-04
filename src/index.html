@@ -1,22 +1,77 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-	<link href="css/style.css" rel="stylesheet" type="text/css"/>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css"  type="text/css"/>
+    <link rel="stylesheet" href="css/cryptofont.css">
+  </head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <title>NFT Marketplace</title>
+  </head>
+  <body>
+    <div id="mainUI" class="container" style="
+      background-color: white;">
+      <h1 id="mainTitle" class="text-center">NFT Marketplace <i class="cf cf-eth"></i></h1>
+      <div  class="col-lg-auto">
+        <p class="lead">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas lorem odio, vestibulum id orci vitae, consequat elementum turpis. In dignissim accumsan augue ut posuere. Donec euismod lorem quis varius tempor.
+          Proin convallis facilisis massa a consequat. Maecenas quis arcu vitae elit molestie accumsan. Vivamus ante velit, ultrices a neque sed, laoreet pulvinar nunc. Nulla rhoncus, nisl sed gravida viverra, nisl lectus maximus lectus, id consectetur tortor quam faucibus nisi.
+      </div>
+      <!-- Gallery -->
+      <div class="row">
+        <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
+          <img
+            src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg"
+            class="w-100 shadow-1-strong rounded mb-4"
+            alt=""
+            />
+          <img
+            src="https://mdbootstrap.com/img/Photos/Vertical/mountain1.jpg"
+            class="w-100 shadow-1-strong rounded mb-4"
+            alt=""
+            />
+        </div>
+        <div class="col-lg-4 mb-4 mb-lg-0">
+          <img
+            src="https://mdbootstrap.com/img/Photos/Vertical/mountain2.jpg"
+            class="w-100 shadow-1-strong rounded mb-4"
+            alt=""
+            />
+          <img
+            src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg"
+            class="w-100 shadow-1-strong rounded mb-4"
+            alt=""
+            />
+        </div>
+        <div class="col-lg-4 mb-4 mb-lg-0">
+          <img
+            src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(18).jpg"
+            class="w-100 shadow-1-strong rounded mb-4"
+            alt=""
+            />
+          <img
+            src="https://mdbootstrap.com/img/Photos/Vertical/mountain3.jpg"
+            class="w-100 shadow-1-strong rounded mb-4"
+            alt=""
+            />
+        </div>
+      </div>
+      <!-- Gallery -->
 
-    <title>NFT Marketplace</title>
-</head>
-<body>
-
-    <div class="container" >
-		    <div class="row">
-			  </div>
     </div>
-
-
+    <footer class="row text-center fixed-bottom">
+      <div class="container">
+        <div class="col-lg-auto">
+          <div class="file btn btn-primary btn-xl ">
+            Create NFT
+            <input id="upload-btn" type="file" name="file"/>
+          </button>
+        </div>
+      </div>
+    </footer>
+    </div>
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
@@ -26,6 +81,5 @@
     <script src="./dist/truffle-contract.js"></script>
     <!-- App -->
     <script src="./js/app.js"></script>
-
-</body>
+  </body>
 </html>

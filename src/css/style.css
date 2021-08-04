@@ -1,47 +1,28 @@
-#computeForm {
-    display: block;
+body {
+  background-image: url('https://mdbootstrap.com/img/Photos/Others/images/76.webp');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
-#castForm {
-    display: none;
+.btn-xl{
+  font-size: 30px !important;
+  margin: 20px;
 }
 
-#whoIsMayor {
-   display: none;
+#mainTitle{
+  font-style: italic;
+  padding: 10px;
 }
 
-#mainUI {
-    display:none;
+#mainUI{
+  margin-top: 20px;
+  margin-bottom: 100px;
 }
 
-#mayorBtn {
-  background-color: #2f2cf9;
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-}
-
-.display-4 {
-    font-family: cursive;
-    font-size: 2.5rem;
-    font-weight: 100;
-    line-height: 1.2;
-    margin-top: 50px;
-}
-
-.display-5 {
-    margin-top: 2.5rem;
-    overflow-wrap: break-word;
-}
-
-#castForm {
-    margin-top: 2.5rem;
-}
-
-#computeForm {
-    margin-top: 2.5rem;
+#upload-btn{
+  position: absolute;
+  font-size: 30px;
+  opacity: 0;
+  right: 0;
+  top: 0;
 }
