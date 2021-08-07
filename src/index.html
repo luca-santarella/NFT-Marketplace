@@ -64,10 +64,10 @@
     <footer class="row text-center fixed-bottom">
       <div class="container">
         <div class="col-lg-auto">
-          <div class="file btn btn-primary btn-xl ">
-            Create NFT
-            <input id="upload-btn" type="file" name="file"/>
-          </button>
+          <form id="upload-form">
+            <input type="file" id="upload" accept="image/png, image/jpeg" hidden/>
+            <label for="upload">Create NFT</label>
+          </form>
         </div>
       </div>
     </footer>
