@@ -6,6 +6,7 @@ App = {
 	url: 'http://localhost:8545', //url for web3
 	account: '0x0',  //current Ethereum account
 	input: null,
+	instance: null,
 
 	init: function() {
 
@@ -44,49 +45,59 @@ App = {
 
 		$.getJSON('NFTCollection.json').done(function(NFTContract) {
 
-			App.contracts["NFT"] = TruffleContract(NFTContract);
-			App.contracts["NFT"].setProvider(App.web3Provider);
+			App.contracts["NFTCollection"] = TruffleContract(NFTContract);
+			App.contracts["NFTCollection"].setProvider(App.web3Provider);
 			console.log("All done!");
+			return App.listenForEvents();
 		});
 
-		return App.listenForEvents();
+
 	},
 
 	listenForEvents: function(){
-		App.input = document.querySelector('input');
-		App.input.addEventListener('change', App.createNewNFT);
+		// Retrieve contract instance
+ 		App.contracts["NFTCollection"].deployed().then(async(instance) =>{
+			App.instance = instance;
+			App.input = document.querySelector('input');
+			App.input.addEventListener('change', App.createNewNFT);
+			App.instance.NewMintedToken().on('data', function (event) {
+				console.log("A new token has been minted!");
+				console.log(event);
+				alert("New token minted with tokenID: "+ event.args.tokenID);
+
+			});
+		});
 	},
 
 	createNewNFT: function(){
-		const curFiles = App.input.files;
-		file = curFiles[0];
-		console.log(file);
-		var fd = new FormData();
-		fd.append('imageNFT', file, 'pingu.jpeg');
-		console.log(fd);
-		// var reader = new FileReader();
-		// reader.readAsDataURL(file);
-		// console.log(reader.result);
-		// console.log(JSON.stringify(reader.result));
-		// var formData = new FormData();
-		// formData.append('fname', file.name);
-		// formData.append('data', file);
-		//console.log(formData);
-		$.ajax({
-  		type: "POST",
-  		url: "/upload",
-  		data: fd,
-			contentType: false,
-			processData: false,
-			success: function(data, textStatus, jqXHR) {
-				alert('Success!');
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				alert('Error occurred!');
-			},
+
+		App.instance.newItem(App.account, 'pingu.jpeg', {from: App.account}).then((tokenID) => {
+			console.log("Successfull mint");
+			console.log(tokenID);
+
+			const curFiles = App.input.files;
+			file = curFiles[0];
+			console.log(file);
+			var fd = new FormData();
+			fd.append('imageNFT', file, 'pingu.jpeg'); //// TODO: Generalize filename
+			console.log(fd);
+
+			$.ajax({
+	  		type: "POST",
+	  		url: "/upload",
+	  		data: fd,
+				contentType: false,
+				processData: false,
+				success: function(data, textStatus, jqXHR) {
+					alert('Success!');
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					alert('Error occurred!');
+				},
+			});
+			console.log(URL.createObjectURL(file));
 		});
-		console.log(URL.createObjectURL(file));
-	}
+	},
 }
 
 

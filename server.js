@@ -21,6 +21,7 @@ app.use(express.json()) // for parsing application/json
 
 app.use(express.static(__dirname + '/src/'));
 app.use(express.static('.'));
+app.use(express.static(__dirname + '/images/'));
 app.use(express.static(__dirname + '/build/contracts'));
 app.use(express.static(__dirname + '/node_modules/@truffle/contract'));
 app.use(express.static(__dirname + '/node_modules/web3'));

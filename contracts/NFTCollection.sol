@@ -10,21 +10,23 @@ contract NFTCollection is ERC721 {
 
     //mapping for token URIs
     mapping (uint256 => string) private _tokenURIs;
-    
+
+    event NewMintedToken(uint256 tokenID);
+
     constructor() ERC721("NFTCollection", "NFTC") {}
 
     function _setTokenURI(uint256 tokenID, string memory _tokenURI) internal virtual {
         _tokenURIs[tokenID] = _tokenURI;
     }
 
-    function newItem(address userAddress, string memory _tokenURI) public returns (uint256) {
+    function newItem(address userAddress, string memory _tokenURI) public {
         _tokenIds.increment();
 
         uint256 newItemId = _tokenIds.current();
         _mint(userAddress, newItemId);
         _setTokenURI(newItemId, _tokenURI);
 
-        return newItemId;
+        emit NewMintedToken(newItemId);
     }
 
     function tokenURI(uint256 tokenID) public view virtual override returns (string memory){
