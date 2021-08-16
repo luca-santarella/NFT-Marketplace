@@ -64,7 +64,7 @@ App = {
 				console.log("A new token has been minted!");
 				console.log(event);
 				alert("New token minted with tokenID: "+ event.args.tokenID);
-
+				location.reload(true);
 			});
 		});
 	},
@@ -77,10 +77,9 @@ App = {
 
 			const curFiles = App.input.files;
 			file = curFiles[0];
-			console.log(file);
+			filename = file.name;
 			var fd = new FormData();
-			fd.append('imageNFT', file, 'pingu.jpeg'); //// TODO: Generalize filename
-			console.log(fd);
+			fd.append('imageNFT', file, filename);
 
 			$.ajax({
 	  		type: "POST",
@@ -89,7 +88,7 @@ App = {
 				contentType: false,
 				processData: false,
 				success: function(data, textStatus, jqXHR) {
-					alert('Success!');
+					alert("Success");
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					alert('Error occurred!');
@@ -103,5 +102,40 @@ App = {
 
 //Call init whenever the window loads
 $(function() {
-		App.init();
+
+	imagesArr = [];
+	filenames= [];
+	jQuery(document).ready(function () {
+		$.ajax({
+			type: "GET",
+			url: "/NFT-images",
+			success: function(data, textStatus, jqXHR) {
+  			filenames = data.map((x) => x);
+				for(i = 0; i < filenames.length; i++){ //loop through different filenames of the NFT images
+					title = filenames[i].replace(/\.[^/.]+$/, "");
+					imageObj = {src: filenames[i], title: title};
+					imagesArr.push(imageObj);
+				}
+				jQuery("#nanogallery2").nanogallery2( {
+					// ### gallery settings ###
+					thumbnailFillWidth: "fillWidth",
+					thumbnailHeight:  500,
+					thumbnailWidth:   "auto",
+					thumbnailLabel:     { titleFontSize: "2em" },
+					itemsBaseURL:     'images/',
+
+					// ### gallery content ###
+					items: imagesArr
+				});
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				alert('Error occurred!');
+			},
+		});
+
+
+
+
+	});
+	App.init();
 });

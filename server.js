@@ -34,16 +34,12 @@ app.get('/',
         res.sendFile(path.join(__dirname, '/src/index.html'));
     });
 
-app.post('/upload', upload.single('imageNFT'), function (req, res, next) {
+app.post('/upload', upload.single('imageNFT'), function (req, res, next) {});
 
-
-    res.send("Success!");
-
-    // fs.writeFile('./images/image.png', req.body, 'binary', function(err){
-    //   if (err) throw err
-    //   console.log('File saved.')
-    //   //console.log(imagedata);
-    // })
+app.get('/NFT-images', function(req, res){
+  var fileNames = fs.readdirSync(__dirname + '/images/');
+  console.log(fileNames);
+  res.send(fileNames);
 });
 
 var port = process.env.PORT || 3000;
