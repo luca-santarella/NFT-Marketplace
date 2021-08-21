@@ -7,6 +7,7 @@ App = {
 	account: '0x0',  //current Ethereum account
 	input: null,
 	instance: null,
+	isConnected: false,
 
 	init: function() {
 
@@ -20,28 +21,34 @@ App = {
 			App.web3Provider = window.ethereum; //standard since 2/11/18
 			web3 = new Web3(App.web3Provider);
 			try{	//permission popup
-				ethereum.enable().then(async() => { console.log("DApp connected"); });
+				ethereum.enable().then(async() => {
+					//Store ETH current account
+					web3.eth.getCoinbase(function(err,account) {
+						if(err == null) {
+							App.account = account;
+							console.log(account);
+
+						}
+					});
+					console.log("DApp connected"); });
+					App.isConnected = true;
+					return App.initContract();
 			}
 			catch(error) { console.log(error); }
 		}
-		else {	//otherwise, create a new local instance of Web3
-		console.log("local instance of Web3");
-			App.web3Provider = new Web3.providers.HttpProvider(App.url);
-			web3 = new Web3(App.web3Provider);
+		else {
+			$('#upload').prop('disabled', true);
+			Swal.fire({
+  			icon: 'error',
+  			title: 'Oops...',
+  			text: 'A Web3 provider was not found',
+  			footer: '<a href="https://metamask.io/download.html">Install a web3 provider such as Metamask</a>'
+			})
 		}
-		return App.initContract();
+
 	},
 
 	initContract: function(){
-
-		//Store ETH current account
-		web3.eth.getCoinbase(function(err,account) {
-			if(err == null) {
-				App.account = account;
-				console.log(account);
-
-			}
-		});
 
 		$.getJSON('NFTCollection.json').done(function(NFTContract) {
 
@@ -64,6 +71,23 @@ App = {
 				console.log("A new token has been minted!");
 				console.log(event);
 				alert("New token minted with tokenID: "+ event.args.tokenID);
+				var fd = new FormData();
+				fd.append('imageNFT', file, filename);
+
+				$.ajax({
+		  		type: "POST",
+		  		url: "/upload",
+		  		data: fd,
+					contentType: false,
+					processData: false,
+					success: function(data, textStatus, jqXHR) {
+						alert("Success");
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						alert('Error occurred!');
+					},
+				});
+				console.log(URL.createObjectURL(file));
 				location.reload(true);
 			});
 		});
@@ -71,30 +95,12 @@ App = {
 
 	createNewNFT: function(){
 
-		App.instance.newItem(App.account, 'pingu.jpeg', {from: App.account}).then((tokenID) => {
+		const curFiles = App.input.files;
+		file = curFiles[0];
+		filename = file.name;
+		App.instance.newItem(App.account, filename, {from: App.account}).then((tokenID) => {
 			console.log("Successfull mint");
 			console.log(tokenID);
-
-			const curFiles = App.input.files;
-			file = curFiles[0];
-			filename = file.name;
-			var fd = new FormData();
-			fd.append('imageNFT', file, filename);
-
-			$.ajax({
-	  		type: "POST",
-	  		url: "/upload",
-	  		data: fd,
-				contentType: false,
-				processData: false,
-				success: function(data, textStatus, jqXHR) {
-					alert("Success");
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					alert('Error occurred!');
-				},
-			});
-			console.log(URL.createObjectURL(file));
 		});
 	},
 }

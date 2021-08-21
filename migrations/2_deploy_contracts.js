@@ -1,7 +1,7 @@
 var NFTContract = artifacts.require("./NFTCollection.sol");
 
 module.exports = function(deployer, network, accounts) {
-	if(network == "development") {
+	if(network == "ropsten") {
 		deployer.deploy(NFTContract);
 	}
 };

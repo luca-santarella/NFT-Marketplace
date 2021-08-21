@@ -19,10 +19,12 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.2.0",
     "@truffle/contract": "^4.3.27",
+    "@truffle/hdwallet-provider": "^1.4.3",
     "ganache-cli": "^6.12.2",
     "lite-server": "^2.6.1",
     "multer": "^1.4.2",
     "nanogallery2": "^3.0.5",
+    "sweetalert2": "^11.1.4",
     "web3": "^1.5.0"
   }
 }

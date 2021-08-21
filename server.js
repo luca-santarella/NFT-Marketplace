@@ -25,6 +25,9 @@ app.use(express.static(__dirname + '/images/'));
 app.use(express.static(__dirname + '/build/contracts'));
 app.use(express.static(__dirname + '/node_modules/@truffle/contract'));
 app.use(express.static(__dirname + '/node_modules/web3'));
+app.use(express.static(__dirname + '/node_modules/sweetalert2'));
+app.use(express.static(__dirname + '/node_modules/nanogallery2'));
+app.use(express.static(__dirname + '/node_modules/jquery'));
 
 
 
