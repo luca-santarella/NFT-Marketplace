@@ -7,7 +7,6 @@ App = {
 	account: '0x0',  //current Ethereum account
 	input: null,
 	instance: null,
-	isConnected: false,
 
 	init: function() {
 
@@ -20,21 +19,32 @@ App = {
 		if(typeof web3 != 'undefined') { //check whether exists a provider, e.g. Metamask
 			App.web3Provider = window.ethereum; //standard since 2/11/18
 			web3 = new Web3(App.web3Provider);
-			try{	//permission popup
-				ethereum.enable().then(async() => {
-					//Store ETH current account
-					web3.eth.getCoinbase(function(err,account) {
-						if(err == null) {
-							App.account = account;
-							console.log(account);
-
-						}
+			web3.eth.net.getId().then(netId => {
+				if(netId != 3){ //Ropsten testnet chain ID is 3
+					$('#upload').prop('disabled', true);
+					Swal.fire({
+		  			icon: 'error',
+		  			title: 'Warning',
+		  			text: 'Please select the Ropsten testnet and reload'
 					});
-					console.log("DApp connected"); });
-					App.isConnected = true;
-					return App.initContract();
-			}
-			catch(error) { console.log(error); }
+				}
+				else{
+					try{	//permission popup
+						ethereum.enable().then(async() => {
+							//Store ETH current account
+							web3.eth.getCoinbase(function(err,account) {
+								if(err == null) {
+									App.account = account;
+									console.log(account);
+
+								}
+							});
+							console.log("DApp connected"); });
+							return App.initContract();
+					}
+					catch(error) { console.log(error); }
+				}
+			});
 		}
 		else {
 			$('#upload').prop('disabled', true);
@@ -67,6 +77,7 @@ App = {
 			App.instance = instance;
 			App.input = document.querySelector('input');
 			App.input.addEventListener('change', App.createNewNFT);
+
 			App.instance.NewMintedToken().on('data', function (event) {
 				console.log("A new token has been minted!");
 				console.log(event);
@@ -94,14 +105,39 @@ App = {
 	},
 
 	createNewNFT: function(){
-
+		console.log("inside createNewNFT");
 		const curFiles = App.input.files;
 		file = curFiles[0];
 		filename = file.name;
+
+		Swal.fire({
+		  title: 'Minting in progress',
+			text: "Please accept the transaction",
+			allowEscapeKey: false,
+			allowOutsideClick: false,
+			didOpen: () => {
+				Swal.showLoading()
+			}
+		})
+
 		App.instance.newItem(App.account, filename, {from: App.account}).then((tokenID) => {
-			console.log("Successfull mint");
+			Swal.close();
+			console.log("Successful mint");
 			console.log(tokenID);
-		});
+			Swal.fire({
+			  title: 'Congratulations!',
+			  text: 'Your NFT has just been minted',
+			})
+		}).catch((error) => {
+			console.log(error);
+			Swal.close();
+			Swal.fire({
+				icon: "error",
+			  title: 'Error!',
+			  text: 'You need to accept the transaction to create the NFT',
+			})
+			App.input.value = null;
+		})
 	},
 }
 
@@ -119,7 +155,7 @@ $(function() {
   			filenames = data.map((x) => x);
 				for(i = 0; i < filenames.length; i++){ //loop through different filenames of the NFT images
 					title = filenames[i].replace(/\.[^/.]+$/, "");
-					imageObj = {src: filenames[i], title: title};
+					imageObj = {src: filenames[i], title: title, description: "This is "+title};
 					imagesArr.push(imageObj);
 				}
 				jQuery("#nanogallery2").nanogallery2( {
@@ -127,7 +163,7 @@ $(function() {
 					thumbnailFillWidth: "fillWidth",
 					thumbnailHeight:  500,
 					thumbnailWidth:   "auto",
-					thumbnailLabel:     { titleFontSize: "2em" },
+					thumbnailLabel:     { titleFontSize: "2em", "displayDescription": true },
 					itemsBaseURL:     'images/',
 
 					// ### gallery content ###

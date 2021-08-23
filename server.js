@@ -2,7 +2,7 @@ var express = require('express');
 var debug = require('debug')('app');
 var path = require('path');
 var fs = require('fs');
-const multer  = require('multer'); //module for multipart data
+const multer  = require('multer'); //module used for multipart data
 
 var storage = multer.diskStorage(
     {
