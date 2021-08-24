@@ -8,7 +8,11 @@ App = {
 	instance: null,
 
 	init: function() {
-		App.input = document.querySelector('input');
+		var isConnected = sessionStorage.getItem('isConnected');
+
+		if (isConnected)
+			return App.initWeb3();
+
 		$('input').on('click', function(event){
 			event.preventDefault();
 			Swal.fire({
@@ -23,6 +27,7 @@ App = {
 	initWeb3: function(){
 		/* initialize Web3 */
 		if(typeof web3 != 'undefined') { //check whether exists a provider, e.g. Metamask
+
 			App.web3Provider = window.ethereum; //standard since 2/11/18
 			web3 = new Web3(App.web3Provider);
 			web3.eth.net.getId().then(netId => {
@@ -46,6 +51,7 @@ App = {
 								}
 							});
 							console.log("DApp connected"); });
+							sessionStorage.setItem('isConnected', true);
 							$('#connectBtn').text("Connected ✓");
 							$('#connectBtn').prop('disabled', true);
 							$('input').off();
@@ -86,7 +92,8 @@ App = {
 		// Retrieve contract instance
  		App.contracts["NFTCollection"].deployed().then(async(instance) =>{
 			App.instance = instance;
-			App.input.addEventListener('change', App.createNFT);
+
+			$('input').on('change', App.createNFT);
 
 			App.instance.NewMintedToken().on('data', function (event) {
 				console.log("A new token has been minted!");
@@ -130,6 +137,7 @@ App = {
 	},
 
 	createNFT: function(){
+		App.input = document.querySelector('input');
 		const curFiles = App.input.files;
 		file = curFiles[0];
 		filename = file.name;
