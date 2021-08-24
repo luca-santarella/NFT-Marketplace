@@ -14,7 +14,6 @@ App = {
 	},
 
 	initWeb3: function(){
-		console.log("Hello");
 		/* initialize Web3 */
 		if(typeof web3 != 'undefined') { //check whether exists a provider, e.g. Metamask
 			App.web3Provider = window.ethereum; //standard since 2/11/18
@@ -81,9 +80,14 @@ App = {
 			App.instance.NewMintedToken().on('data', function (event) {
 				console.log("A new token has been minted!");
 				console.log(event);
-				alert("New token minted with tokenID: "+ event.args.tokenID);
+
+				title = event.args.tokenURI.replace(/\.[^/.]+$/, "");
 				var fd = new FormData();
-				fd.append('imageNFT', file, filename);
+				fd.append('image', file, filename);
+				fd.append('owner', event.args.userAddress);
+				fd.append('id', event.args.tokenID);
+				fd.append('tokenURI', event.args.tokenURI);
+				fd.append('title', title);
 
 				$.ajax({
 		  		type: "POST",
@@ -92,14 +96,24 @@ App = {
 					contentType: false,
 					processData: false,
 					success: function(data, textStatus, jqXHR) {
-						alert("Success");
+						console.log(textStatus);
+						Swal.close();
+						Swal.fire({
+							title: 'Congratulations!',
+							text: 'Your NFT has just been minted',
+						}).then((result) => {
+							if(result.isConfirmed)
+								location.reload(true);
+						})
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
 						alert('Error occurred!');
 					},
 				});
+
 				console.log(URL.createObjectURL(file));
-				location.reload(true);
+
+
 			});
 		});
 	},
@@ -112,7 +126,7 @@ App = {
 
 		Swal.fire({
 		  title: 'Minting in progress',
-			text: "Please accept the transaction",
+			text: "The transaction could take a few minutes",
 			allowEscapeKey: false,
 			allowOutsideClick: false,
 			didOpen: () => {
@@ -120,14 +134,11 @@ App = {
 			}
 		})
 
-		App.instance.newItem(App.account, filename, {from: App.account}).then((tokenID) => {
-			Swal.close();
+		App.instance.newItem(App.account, filename, {from: App.account}).then((receipt) => {
+
 			console.log("Successful mint");
-			console.log(tokenID);
-			Swal.fire({
-			  title: 'Congratulations!',
-			  text: 'Your NFT has just been minted',
-			})
+			console.log(receipt);
+
 		}).catch((error) => {
 			console.log(error);
 			Swal.close();
@@ -152,12 +163,11 @@ $(function() {
 			type: "GET",
 			url: "/NFT-images",
 			success: function(data, textStatus, jqXHR) {
-  			filenames = data.map((x) => x);
-				for(i = 0; i < filenames.length; i++){ //loop through different filenames of the NFT images
-					title = filenames[i].replace(/\.[^/.]+$/, "");
-					imageObj = {src: filenames[i], title: title, description: "This is "+title};
+				console.log(data);
+				data.forEach(NFT => {
+					imageObj = {src: NFT.tokenURI, title: NFT.title, description: "Owner: "+NFT.owner};
 					imagesArr.push(imageObj);
-				}
+				});
 				jQuery("#nanogallery2").nanogallery2( {
 					// ### gallery settings ###
 					thumbnailFillWidth: "fillWidth",
@@ -174,9 +184,6 @@ $(function() {
 				alert('Error occurred!');
 			},
 		});
-
-
-
 
 	});
 	App.init();

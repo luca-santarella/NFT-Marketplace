@@ -2,7 +2,12 @@ var express = require('express');
 var debug = require('debug')('app');
 var path = require('path');
 var fs = require('fs');
+var http = require('http-debug').http;
+var morgan = require('morgan')
 const multer  = require('multer'); //module used for multipart data
+
+
+http.debug = 2;
 
 var storage = multer.diskStorage(
     {
@@ -16,6 +21,8 @@ var storage = multer.diskStorage(
 const upload = multer({ storage: storage });
 
 var app = express();
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 
 app.use(express.json()) // for parsing application/json
 
@@ -37,13 +44,30 @@ app.get('/',
         res.sendFile(path.join(__dirname, '/src/index.html'));
     });
 
-app.post('/upload', upload.single('imageNFT'), function (req, res, next) {});
+app.post('/upload', upload.single('image'),
+  function (req, res, next) {
+    var dict = {"title": req.body.title, "tokenURI": req.body.tokenURI, "owner": req.body.owner, "id": req.body.id};
+    var dictString = JSON.stringify(dict);
 
-app.get('/NFT-images', function(req, res){
-  var fileNames = fs.readdirSync(__dirname + '/images/');
-  console.log(fileNames);
-  res.send(fileNames);
-});
+    fs.writeFile("./NFTs/"+req.body.title+".json", dictString,
+      function(err, result) {
+      if(err)
+        console.log('error', err);
+    });
+    res.send(dict);
+  });
+
+app.get('/NFT-images',
+  function(req, res){
+    const jsonsInDir = fs.readdirSync('./NFTs').filter(file => path.extname(file) === '.json');
+    jsonArr = [];
+    jsonsInDir.forEach(file => {
+      const fileData = fs.readFileSync(path.join('./NFTs', file));
+      const jsonFile = JSON.parse(fileData.toString());
+      jsonArr.push(jsonFile);
+    });
+    res.send(jsonArr);
+  });
 
 var port = process.env.PORT || 3000;
 debug("Using port ", port);
