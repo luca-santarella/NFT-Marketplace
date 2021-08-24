@@ -4,11 +4,6 @@ body {
   background-attachment: fixed;
 }
 
-.btn-xl{
-  font-size: 30px !important;
-  margin: 20px;
-}
-
 #mainTitle{
   font-style: italic;
   padding: 10px;
@@ -37,4 +32,9 @@ label{
   border-radius: 0.3rem;
   cursor: pointer;
   margin-top: 1rem;
+}
+
+#connectBtn{
+  right:0;
+  margin-right: 20px;
 }

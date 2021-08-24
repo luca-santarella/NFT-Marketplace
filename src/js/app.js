@@ -3,14 +3,21 @@
 App = {
 	contracts: {}, //store contract abstractions
 	web3Provider: null, //web3 provider
-	url: 'http://localhost:8545', //url for web3
 	account: '0x0',  //current Ethereum account
 	input: null,
 	instance: null,
 
 	init: function() {
-
-		return App.initWeb3();
+		App.input = document.querySelector('input');
+		$('input').on('click', function(event){
+			event.preventDefault();
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Please connect your wallet with Metamask first',
+			})
+		});
+		$('#connectBtn').on('click',App.initWeb3);
 	},
 
 	initWeb3: function(){
@@ -28,6 +35,7 @@ App = {
 					});
 				}
 				else{
+					$('#upload').prop('disabled', false);
 					try{	//permission popup
 						ethereum.enable().then(async() => {
 							//Store ETH current account
@@ -35,10 +43,13 @@ App = {
 								if(err == null) {
 									App.account = account;
 									console.log(account);
-
 								}
 							});
 							console.log("DApp connected"); });
+							$('#connectBtn').text("Connected ✓");
+							$('#connectBtn').prop('disabled', true);
+							$('input').off();
+							$('#connectBtn').off();
 							return App.initContract();
 					}
 					catch(error) { console.log(error); }
@@ -59,6 +70,7 @@ App = {
 
 	initContract: function(){
 
+		//Init contracts getting the ABI
 		$.getJSON('NFTCollection.json').done(function(NFTContract) {
 
 			App.contracts["NFTCollection"] = TruffleContract(NFTContract);
@@ -74,8 +86,7 @@ App = {
 		// Retrieve contract instance
  		App.contracts["NFTCollection"].deployed().then(async(instance) =>{
 			App.instance = instance;
-			App.input = document.querySelector('input');
-			App.input.addEventListener('change', App.createNewNFT);
+			App.input.addEventListener('change', App.createNFT);
 
 			App.instance.NewMintedToken().on('data', function (event) {
 				console.log("A new token has been minted!");
@@ -118,8 +129,7 @@ App = {
 		});
 	},
 
-	createNewNFT: function(){
-		console.log("inside createNewNFT");
+	createNFT: function(){
 		const curFiles = App.input.files;
 		file = curFiles[0];
 		filename = file.name;
