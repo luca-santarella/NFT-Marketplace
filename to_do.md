@@ -6,3 +6,4 @@
  - [ ] IPFS integration
  - [ ] user address is not selectable
  - [ ] link to etherscan for the NFT
+ - [ ] images are not ordered
