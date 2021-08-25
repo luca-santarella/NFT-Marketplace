@@ -10,12 +10,37 @@ const multer  = require('multer'); //module used for multipart data
 http.debug = 2;
 
 var storage = multer.diskStorage(
-    {
-        destination: './images/',
-        filename: function ( req, file, cb ) {
-            cb( null, file.originalname);
+  {
+    destination: './images/',
+    filename: function ( req, file, cb ) {
+      //checks if path already exists, if so increment filename
+      var foundDuplicate = true;
+      var i = 1;
+      //get file extension
+      var extension = file.originalname.split('.').pop();
+      //filename with file extension removed
+      var filename = file.originalname.replace(/\.[^/.]+$/, "");
+
+      if (fs.existsSync(path.join("./images/",file.originalname))) {
+        while (foundDuplicate){
+          //incremented filename
+          incrFilename = filename+"-"+i+"."+extension;
+          console.log(incrFilename);
+          if (fs.existsSync(path.join("./images/",incrFilename)))
+            i++;
+          else{
+            foundDuplicate = false;
+            newTitle = filename+"-"+i;
+            cb( null, incrFilename);
+          }
         }
+      }
+      else{
+        newTitle = filename;
+        cb( null, file.originalname);
+      }
     }
+  }
 );
 
 const upload = multer({ storage: storage });
@@ -46,10 +71,11 @@ app.get('/',
 
 app.post('/upload', upload.single('image'),
   function (req, res, next) {
-    var dict = {"title": req.body.title, "tokenURI": req.body.tokenURI, "owner": req.body.owner, "id": req.body.id};
+
+    var dict = {"title": newTitle, "tokenURI": req.body.tokenURI, "owner": req.body.owner, "id": req.body.id};
     var dictString = JSON.stringify(dict);
 
-    fs.writeFile("./NFTs/"+req.body.title+".json", dictString,
+    fs.writeFile("./NFTs/"+newTitle+".json", dictString,
       function(err, result) {
       if(err)
         console.log('error', err);

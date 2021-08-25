@@ -183,7 +183,7 @@ $(function() {
 			success: function(data, textStatus, jqXHR) {
 				console.log(data);
 				data.forEach(NFT => {
-					imageObj = {src: NFT.tokenURI, title: NFT.title, description: "Owner: "+NFT.owner};
+					imageObj = {src: NFT.tokenURI, title: NFT.title, description: "TokenId: "+NFT.id+" Owner: "+NFT.owner};
 					imagesArr.push(imageObj);
 				});
 				jQuery("#nanogallery2").nanogallery2( {
