@@ -1,25 +1,40 @@
+@media only screen and (max-width: 1000px) {
+
+  #mainTitle {
+    font-size: 70px !important;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  #upload-input{
+    font-size: 20px;
+  }
+
+  #connectBtnText{
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .img-fluid{
+    max-width: 70% !important;
+  }
+  #mainTitle {
+    font-size: 50px !important;
+  }
+  #upload-input{
+    font-size: 15px;
+  }
+}
+
 body {
   background-image: url('https://mdbootstrap.com/img/Photos/Others/images/76.webp');
   background-repeat: no-repeat;
   background-attachment: fixed;
-}
-
-#mainTitle{
-  font-style: italic;
-  padding: 10px;
-}
-
-#mainUI{
-  margin-top: 20px;
-  margin-bottom: 100px;
-}
-
-#upload-input{
-  position: absolute;
-  font-size: 30px;
-  opacity: 0;
-  right: 0;
-  top: 0;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
 label{
@@ -34,7 +49,76 @@ label{
   margin-top: 1rem;
 }
 
+#mainTitle {
+
+  font-size: 100px;
+  font-weight: 300;
+	font-family: 'Poppins', sans-serif;
+ 	color: #e27d5f;
+	font-style: italic;
+	padding: 10px;
+  text-shadow: 2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+}
+
+#mainUI{
+  margin-top: 20px;
+  margin-bottom: 100px;
+  padding-bottom:70px;
+}
+
+#upload-input{
+  position: absolute;
+  font-size: 30px;
+  opacity: 0;
+  right: 0;
+  top: 0;
+}
+
+
 #connectBtn{
-  right:0;
-  margin-right: 20px;
+  color: #fff;
+  border-color: #d2795f;
+  background-color: #e27d5f;
+  margin: 10px;
+  display: inline-block;
+  padding: 10px;
+}
+
+#connectBtn:hover{
+  background-color: #e8a87c;
+}
+
+#welcomeHeader{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  border-radius: 5px;
+  padding: 10px;
+  line-height: 1.6em;
+  text-align: justify;
+  margin-bottom: 20px;
+}
+
+
+.lowerToolbar{
+  background-color: white;
+  padding: 5px;
+  position: absolute;
+  border: 2px solid #000;
+  cursor: text ;
+  -moz-user-select: text ;
+  -khtml-user-select: text ;
+  -webkit-user-select: text;
+  -ms-user-select: text ;
+  user-select: text ;
+  width: inherit;
+  margin-left: -2px;
+}
+
+.lowerToolbarText{
+  width: 70%;
+
+}
+
+.lowerToolbarBtn{
+  width: 30%;
 }

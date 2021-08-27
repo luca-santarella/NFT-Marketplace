@@ -15,22 +15,39 @@
     <!-- sweetalert2 -->
     <script  type="text/javascript" src="./dist/sweetalert2.all.min.js"></script>
     <!--<link rel="stylesheet" href="css/cryptofont.css">-->
+    <link rel="stylesheet" href="./css/bootstrap.min.css" type="text/css">
+    <!-- Font Awesome -->
+    <link href="./css/all.css" rel="stylesheet"> <!--load all styles -->
+    <!-- Poppins Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,200&display=swap" rel="stylesheet">
+    <!-- Montserrat Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
   </head>
-  <link rel="stylesheet" href="./css/bootstrap.min.css" type="text/css">
-  <title>NFT Marketplace</title>
+
+  <title>POP NFT</title>
   </head>
   <body>
 
-    <div id="mainUI" class="container" style="
-      background-color: white;">
-      <button type="button" class="btn btn-primary btn-lg position-absolute" id="connectBtn">
-        Connect with Metamask
-      </button>
-      <h1 id="mainTitle" class="text-center">NFT Marketplace <i class="cf cf-eth"></i></h1>
-      <div  class="col-lg-auto">
-        <p class="lead">
+    <div id="mainUI" class="container">
+      <div class="d-flex justify-content-between" style="background: linear-gradient(126deg, #85cdca 0%, #3a47d5 100%) rgba(76, 175, 80, 0.3);border-radius:5px;">
+        <picture class="align-self-center" style="margin:5px;">
+          <img src="./images/NFT.png" class="img-fluid"/>
+        </picture>
+        <h1 id="mainTitle" class="">POP NFT </h1>
+        <div class="align-self-start">
+          <button type="button" class="btn btn-md" id="connectBtn">
+            <i class="fas fa-wallet"></i>
+            <span id="connectBtnText">Connect with Metamask</span>
+          </button>
+        </div>
+      </div>
+      <div  class="col-lg-auto" style="padding-left: 0;padding-right: 0;">
+        <div id="welcomeHeader" class="lead">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas lorem odio, vestibulum id orci vitae, consequat elementum turpis. In dignissim accumsan augue ut posuere. Donec euismod lorem quis varius tempor.
           Proin convallis facilisis massa a consequat. Maecenas quis arcu vitae elit molestie accumsan. Vivamus ante velit, ultrices a neque sed, laoreet pulvinar nunc. Nulla rhoncus, nisl sed gravida viverra, nisl lectus maximus lectus, id consectetur tortor quam faucibus nisi.
+        </div>
       </div>
 
       <!-- ### position of the gallery ### -->
@@ -39,7 +56,7 @@
     </div>
     <footer class="row text-center fixed-bottom">
       <div class="container">
-        <div class="col-lg-auto">
+        <div class="d-flex justify-content-center">
           <form id="upload-form">
             <input type="file" id="upload" accept="image/png, image/jpeg" hidden />
             <label for="upload">Create NFT</label>

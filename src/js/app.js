@@ -7,6 +7,79 @@ App = {
 	input: null,
 	instance: null,
 
+	initGallery: function(){
+		imagesArr = [];
+		jQuery(document).ready(function () {
+			$.ajax({
+				type: "GET",
+				url: "/NFT-images",
+				success: function(data, textStatus, jqXHR) {
+					console.log(data);
+					data.forEach(NFT => {
+						minOwner = NFT.owner.slice(0,5) + '...' + NFT.owner.slice(-5);
+						imageObj = {src: NFT.tokenURI, title: NFT.title, description: "Token ID: "+NFT.id+"\nOwner: "+minOwner};
+						imagesArr.push(imageObj);
+					});
+					jQuery("#nanogallery2").nanogallery2( {
+						// ### gallery settings ###
+						thumbnailFillWidth: "fillWidth",
+						thumbnailHeight:  '200 XS250 LA250 XL350',
+						thumbnailWidth:   "300 XS350 LA400 XL500",
+						thumbnailLabel:     { titleFontSize: "15px" },
+						galleryL1FilterTags: true,
+						itemsBaseURL:     'images/',
+						viewerTools:    {
+        			topLeft:    'label',
+        			topRight:   'rotateLeft, rotateRight, fullscreenButton, closeButton'
+      			},
+						thumbnailGutterHeight: 100,
+						fnThumbnailInit: function($thumbnail, item, GOMidx){App.addLowerToolbar($thumbnail, item, GOMidx);},
+
+						// ### gallery content ###
+						items: imagesArr
+					});
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					alert('Error occurred!');
+				},
+			});
+
+		});
+	},
+
+	addLowerToolbar: function($thumbnail, item, GOMidx){
+		$thumbnail.css({ "overflow": "visible", "height": "100%", "width": "100%" });
+		var lowerToolbar = $("<div>")
+			.addClass('lowerToolbar d-flex')
+			.text('')
+			.appendTo($thumbnail)
+			.on('mousedown', function(e){e.stopPropagation();});
+
+		var lowerToolbarText = $("<div>")
+				.addClass('lowerToolbarText')
+				.appendTo(lowerToolbar);
+
+		$("<p>")
+				.text(item.description)
+				.appendTo(lowerToolbarText);
+
+		var lowerToolbarBtn = $("<div>")
+				.addClass('lowerToolbarBtn d-flex justify-content-end')
+				.appendTo(lowerToolbar)
+				.on('click', function(){
+					Swal.fire({
+		  			icon: 'error',
+		  			title: 'Error',
+		  			text: 'You are not the owner of this NFT'
+					});
+				});
+
+		$("<button>")
+				.addClass('btn btn-outline-danger btn-sm')
+				.text("DELETE")
+				.appendTo(lowerToolbarBtn);
+	},
+
 	init: function() {
 		var isConnected = sessionStorage.getItem('isConnected');
 
@@ -63,7 +136,6 @@ App = {
 			});
 		}
 		else {
-			$('#upload').prop('disabled', true);
 			Swal.fire({
   			icon: 'error',
   			title: 'Oops...',
@@ -174,35 +246,6 @@ App = {
 //Call init whenever the window loads
 $(function() {
 
-	imagesArr = [];
-	filenames= [];
-	jQuery(document).ready(function () {
-		$.ajax({
-			type: "GET",
-			url: "/NFT-images",
-			success: function(data, textStatus, jqXHR) {
-				console.log(data);
-				data.forEach(NFT => {
-					imageObj = {src: NFT.tokenURI, title: NFT.title, description: "TokenId: "+NFT.id+" Owner: "+NFT.owner};
-					imagesArr.push(imageObj);
-				});
-				jQuery("#nanogallery2").nanogallery2( {
-					// ### gallery settings ###
-					thumbnailFillWidth: "fillWidth",
-					thumbnailHeight:  500,
-					thumbnailWidth:   "auto",
-					thumbnailLabel:     { titleFontSize: "2em", "displayDescription": true },
-					itemsBaseURL:     'images/',
-
-					// ### gallery content ###
-					items: imagesArr
-				});
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				alert('Error occurred!');
-			},
-		});
-
-	});
+	App.initGallery();
 	App.init();
 });

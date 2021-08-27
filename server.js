@@ -5,7 +5,11 @@ var fs = require('fs');
 var http = require('http-debug').http;
 var morgan = require('morgan')
 const multer  = require('multer'); //module used for multipart data
+var sass = require('node-sass');
 
+sass.render({
+  file: './src/scss/style.scss',
+}, function(err, result) { });
 
 http.debug = 2;
 
@@ -60,6 +64,7 @@ app.use(express.static(__dirname + '/node_modules/web3'));
 app.use(express.static(__dirname + '/node_modules/sweetalert2'));
 app.use(express.static(__dirname + '/node_modules/nanogallery2'));
 app.use(express.static(__dirname + '/node_modules/jquery'));
+app.use(express.static(__dirname + '/node_modules/@fortawesome/fontawesome-free'));
 
 
 
