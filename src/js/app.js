@@ -6,6 +6,7 @@ App = {
 	account: '0x0',  //current Ethereum account
 	input: null,
 	instance: null,
+	itemsNFTGallery: [],  //Array of the gallery item objects
 
 	initGallery: function(){
 		imagesArr = [];
@@ -17,7 +18,7 @@ App = {
 					console.log(data);
 					data.forEach(NFT => {
 						minOwner = NFT.owner.slice(0,5) + '...' + NFT.owner.slice(-5);
-						imageObj = {src: NFT.tokenURI, title: NFT.title, description: "Token ID: "+NFT.id+"\nOwner: "+minOwner};
+						imageObj = {src: NFT.tokenURI, title: NFT.title, description: "Token ID: "+NFT.id+" Owner: "+NFT.owner};
 						imagesArr.push(imageObj);
 					});
 					jQuery("#nanogallery2").nanogallery2( {
@@ -33,8 +34,9 @@ App = {
         			topRight:   'rotateLeft, rotateRight, fullscreenButton, closeButton'
       			},
 						thumbnailGutterHeight: 100,
-						fnThumbnailInit: function($thumbnail, item, GOMidx){App.addLowerToolbar($thumbnail, item, GOMidx);},
 
+						// ### callback for loading thumbnail ###
+						fnThumbnailInit: function($thumbnail, item, GOMidx){App.addLowerToolbar($thumbnail, item, GOMidx);},
 						// ### gallery content ###
 						items: imagesArr
 					});
@@ -48,36 +50,46 @@ App = {
 	},
 
 	addLowerToolbar: function($thumbnail, item, GOMidx){
+
+
+		itemObj = {item: item, divThumbnail: $thumbnail};
+		console.log(App.itemsNFTGallery);
+		App.itemsNFTGallery.push(itemObj);
 		$thumbnail.css({ "overflow": "visible", "height": "100%", "width": "100%" });
 		var lowerToolbar = $("<div>")
 			.addClass('lowerToolbar d-flex')
 			.text('')
 			.appendTo($thumbnail)
-			.on('mousedown', function(e){e.stopPropagation();});
+			.on('mousedown', function(e){e.stopPropagation();})
+			.on('touchstart', function(e){e.stopPropagation();})
+			.on('touchdown', function(e){e.stopPropagation();});
 
 		var lowerToolbarText = $("<div>")
 				.addClass('lowerToolbarText')
-				.appendTo(lowerToolbar);
+				.appendTo(lowerToolbar)
+				.css({'width':'100%'});
 
 		$("<p>")
 				.text(item.description)
 				.appendTo(lowerToolbarText);
 
-		var lowerToolbarBtn = $("<div>")
-				.addClass('lowerToolbarBtn d-flex justify-content-end')
-				.appendTo(lowerToolbar)
-				.on('click', function(){
-					Swal.fire({
-		  			icon: 'error',
-		  			title: 'Error',
-		  			text: 'You are not the owner of this NFT'
-					});
-				});
 
-		$("<button>")
-				.addClass('btn btn-outline-danger btn-sm')
-				.text("DELETE")
-				.appendTo(lowerToolbarBtn);
+		//user has already connected before image was loaded
+		if(App.account != '0x0'){
+			console.log("App.account (inside loadImage) is "+App.account)
+			var owner = "";
+			splitDescr = item.description.split(" ");  //TODO maybe reengineer it
+			for(var i=0; i<splitDescr.length; i++){
+				if(splitDescr[i].includes('0x')){
+					owner = splitDescr[i];
+					console.log("owner: "+owner);
+				}
+			}
+			if(App.account === owner.toLowerCase()){
+				lowerToolbarText.css({'width':'70%'});
+				App.addDeleteBtn(lowerToolbar);
+			}
+		}
 	},
 
 	init: function() {
@@ -120,7 +132,25 @@ App = {
 							web3.eth.getCoinbase(function(err,account) {
 								if(err == null) {
 									App.account = account;
-									console.log(account);
+									console.log("account: "+account);
+									App.itemsNFTGallery.forEach(function(itemObj) {
+										var owner = "";
+										splitStr = itemObj.item.description.split(" ");  //maybe reengineer it
+										for(var i=0; i<splitStr.length; i++){
+											if(splitStr[i].includes('0x')){
+												owner = splitStr[i];
+												console.log("owner: "+owner);
+											}
+										}
+										if(account === owner.toLowerCase()){
+											lowerToolbarText = itemObj.divThumbnail.find('.lowerToolbarText');
+											lowerToolbarText.css({'width':'70%'});
+
+											lowerToolbar= itemObj.divThumbnail.find('.lowerToolbar');
+											App.addDeleteBtn(lowerToolbar);
+										}
+									});
+									//console.log(account);
 								}
 							});
 							console.log("DApp connected"); });
@@ -144,6 +174,19 @@ App = {
 			})
 		}
 
+	},
+
+	addDeleteBtn: function(lowerToolbar){
+
+		var lowerToolbarBtn = $("<div>")
+			.addClass('lowerToolbarBtn d-flex justify-content-end')
+			.appendTo(lowerToolbar)
+			.on('click', function(){App.deleteNFT();});
+
+		$("<button>")
+			.addClass('btn btn-outline-danger btn-sm')
+			.text("DELETE")
+			.appendTo(lowerToolbarBtn);
 	},
 
 	initContract: function(){
@@ -238,6 +281,26 @@ App = {
 			  text: 'You need to accept the transaction to create the NFT',
 			})
 			App.input.value = null;
+		})
+	},
+
+	deleteNFT: function(){
+		Swal.fire({
+		  title: 'Are you sure?',
+		  text: "You won't be able to revert this!",
+		  icon: 'warning',
+		  showCancelButton: true,
+		  confirmButtonColor: '#3085d6',
+		  cancelButtonColor: '#d33',
+		  confirmButtonText: 'Yes, delete it!'
+		}).then((result) => {
+		  if (result.isConfirmed) {
+		    Swal.fire(
+		      'Deleted!',
+		      'Your file has been deleted.',
+		      'success'
+		    )
+		  }
 		})
 	},
 }

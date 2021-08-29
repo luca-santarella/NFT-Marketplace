@@ -90,7 +90,6 @@ label{
 
 #welcomeHeader{
   font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
   border-radius: 5px;
   padding: 10px;
   line-height: 1.6em;
@@ -115,6 +114,7 @@ label{
 }
 
 .lowerToolbarText{
+  word-break: break-word;
   width: 70%;
 
 }

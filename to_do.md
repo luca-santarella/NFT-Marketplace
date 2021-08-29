@@ -2,7 +2,8 @@
 
  - [x] check for duplicates?
  - [x] display tokenID
- - [ ] allow deletion (burn) of NFT
+ - [x] allow deletion (burn) of NFT
+ - [x] implement token burn on smart contract
  - [ ] IPFS integration
  - [x] user address is not selectable
  - [ ] link to etherscan for the NFT
