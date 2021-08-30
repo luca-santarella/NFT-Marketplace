@@ -4,22 +4,20 @@ App = {
 	contracts: {}, //store contract abstractions
 	web3Provider: null, //web3 provider
 	account: '0x0',  //current Ethereum account
-	input: null,
-	instance: null,
-	itemsNFTGallery: [],  //Array of the gallery item objects
+	input: null,  //TODO
+	instance: null, //instance of the smart contract (already deployed)
+	itemsNFTGallery: [],
 
 	initGallery: function(){
-		imagesArr = [];
 		jQuery(document).ready(function () {
 			$.ajax({
 				type: "GET",
 				url: "/NFT-images",
 				success: function(data, textStatus, jqXHR) {
-					console.log(data);
 					data.forEach(NFT => {
 						minOwner = NFT.owner.slice(0,5) + '...' + NFT.owner.slice(-5);
-						imageObj = {src: NFT.tokenURI, title: NFT.title, description: "Token ID: "+NFT.id+" Owner: "+NFT.owner};
-						imagesArr.push(imageObj);
+						imageObj = {src: NFT.tokenURI, title: NFT.title, description: "Token ID: "+NFT.id+" Owner: "+NFT.owner, tokenID: NFT.id, owner: NFT.owner, divElement: null};
+						App.itemsNFTGallery.push(imageObj);
 					});
 					jQuery("#nanogallery2").nanogallery2( {
 						// ### gallery settings ###
@@ -38,7 +36,7 @@ App = {
 						// ### callback for loading thumbnail ###
 						fnThumbnailInit: function($thumbnail, item, GOMidx){App.addLowerToolbar($thumbnail, item, GOMidx);},
 						// ### gallery content ###
-						items: imagesArr
+						items: App.itemsNFTGallery
 					});
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
@@ -50,11 +48,6 @@ App = {
 	},
 
 	addLowerToolbar: function($thumbnail, item, GOMidx){
-
-
-		itemObj = {item: item, divThumbnail: $thumbnail};
-		console.log(App.itemsNFTGallery);
-		App.itemsNFTGallery.push(itemObj);
 		$thumbnail.css({ "overflow": "visible", "height": "100%", "width": "100%" });
 		var lowerToolbar = $("<div>")
 			.addClass('lowerToolbar d-flex')
@@ -74,22 +67,20 @@ App = {
 				.appendTo(lowerToolbarText);
 
 
-		//user has already connected before image was loaded
-		if(App.account != '0x0'){
-			console.log("App.account (inside loadImage) is "+App.account)
-			var owner = "";
-			splitDescr = item.description.split(" ");  //TODO maybe reengineer it
-			for(var i=0; i<splitDescr.length; i++){
-				if(splitDescr[i].includes('0x')){
-					owner = splitDescr[i];
-					console.log("owner: "+owner);
+		App.itemsNFTGallery.forEach(function(itemArr) {
+			if(itemArr.title === item.title){
+				itemArr.divElement = $thumbnail;
+
+				//user has already connected before image was loaded
+				if(App.account != '0x0' && App.account === itemArr.owner.toLowerCase()){
+					console.log("user has already connected");
+					lowerToolbarText.css({'width':'70%'});
+					App.addDeleteBtn(lowerToolbar, itemArr.tokenID);
 				}
 			}
-			if(App.account === owner.toLowerCase()){
-				lowerToolbarText.css({'width':'70%'});
-				App.addDeleteBtn(lowerToolbar);
-			}
-		}
+		});
+
+
 	},
 
 	init: function() {
@@ -131,23 +122,21 @@ App = {
 							//Store ETH current account
 							web3.eth.getCoinbase(function(err,account) {
 								if(err == null) {
+									$('#connectBtn').text("Connected ✓");
+									$('#connectBtn').prop('disabled', true);
+									$('input').off();
+									$('#connectBtn').off();
 									App.account = account;
 									console.log("account: "+account);
 									App.itemsNFTGallery.forEach(function(itemObj) {
-										var owner = "";
-										splitStr = itemObj.item.description.split(" ");  //maybe reengineer it
-										for(var i=0; i<splitStr.length; i++){
-											if(splitStr[i].includes('0x')){
-												owner = splitStr[i];
-												console.log("owner: "+owner);
-											}
-										}
-										if(account === owner.toLowerCase()){
-											lowerToolbarText = itemObj.divThumbnail.find('.lowerToolbarText');
+										console.log(itemObj);
+										if(itemObj.divElement != null && account === itemObj.owner.toLowerCase()){
+											console.log("inside");
+											lowerToolbarText = itemObj.divElement.find('.lowerToolbarText');
 											lowerToolbarText.css({'width':'70%'});
 
-											lowerToolbar= itemObj.divThumbnail.find('.lowerToolbar');
-											App.addDeleteBtn(lowerToolbar);
+											lowerToolbar= itemObj.divElement.find('.lowerToolbar');
+											App.addDeleteBtn(lowerToolbar, itemObj.tokenID);
 										}
 									});
 									//console.log(account);
@@ -155,10 +144,7 @@ App = {
 							});
 							console.log("DApp connected"); });
 							sessionStorage.setItem('isConnected', true);
-							$('#connectBtn').text("Connected ✓");
-							$('#connectBtn').prop('disabled', true);
-							$('input').off();
-							$('#connectBtn').off();
+
 							return App.initContract();
 					}
 					catch(error) { console.log(error); }
@@ -176,12 +162,12 @@ App = {
 
 	},
 
-	addDeleteBtn: function(lowerToolbar){
+	addDeleteBtn: function(lowerToolbar, tokenID){
 
 		var lowerToolbarBtn = $("<div>")
 			.addClass('lowerToolbarBtn d-flex justify-content-end')
 			.appendTo(lowerToolbar)
-			.on('click', function(){App.deleteNFT();});
+			.on('click', function(){App.deleteNFT(tokenID);});
 
 		$("<button>")
 			.addClass('btn btn-outline-danger btn-sm')
@@ -210,43 +196,8 @@ App = {
 
 			$('input').on('change', App.createNFT);
 
-			App.instance.NewMintedToken().on('data', function (event) {
-				console.log("A new token has been minted!");
-				console.log(event);
-
-				title = event.args.tokenURI.replace(/\.[^/.]+$/, "");
-				var fd = new FormData();
-				fd.append('image', file, filename);
-				fd.append('owner', event.args.userAddress);
-				fd.append('id', event.args.tokenID);
-				fd.append('tokenURI', event.args.tokenURI);
-				fd.append('title', title);
-
-				$.ajax({
-		  		type: "POST",
-		  		url: "/upload",
-		  		data: fd,
-					contentType: false,
-					processData: false,
-					success: function(data, textStatus, jqXHR) {
-						console.log(textStatus);
-						Swal.close();
-						Swal.fire({
-							title: 'Congratulations!',
-							text: 'Your NFT has just been minted',
-						}).then((result) => {
-							if(result.isConfirmed)
-								location.reload(true);
-						})
-					},
-					error: function(jqXHR, textStatus, errorThrown) {
-						alert('Error occurred!');
-					},
-				});
-
-				console.log(URL.createObjectURL(file));
-
-
+			App.instance.mintedToken().on('data', function(event){
+				App.uploadImg(event);
 			});
 		});
 	},
@@ -259,7 +210,7 @@ App = {
 
 		Swal.fire({
 		  title: 'Minting in progress',
-			text: "The transaction could take a few minutes",
+			text: "The transaction could take several seconds",
 			allowEscapeKey: false,
 			allowOutsideClick: false,
 			didOpen: () => {
@@ -267,7 +218,7 @@ App = {
 			}
 		})
 
-		App.instance.newItem(App.account, filename, {from: App.account}).then((receipt) => {
+		App.instance.mintToken(App.account, filename, {from: App.account}).then((receipt) => {
 
 			console.log("Successful mint");
 			console.log(receipt);
@@ -284,7 +235,7 @@ App = {
 		})
 	},
 
-	deleteNFT: function(){
+	deleteNFT: function(tokenID){
 		Swal.fire({
 		  title: 'Are you sure?',
 		  text: "You won't be able to revert this!",
@@ -295,14 +246,56 @@ App = {
 		  confirmButtonText: 'Yes, delete it!'
 		}).then((result) => {
 		  if (result.isConfirmed) {
-		    Swal.fire(
-		      'Deleted!',
-		      'Your file has been deleted.',
-		      'success'
-		    )
+				console.log(tokenID);
+				App.instance.burnToken(tokenID, {from: App.account}).then((receipt) => {
+					Swal.fire(
+			      'Deleted!',
+			      'Your file has been deleted.',
+			      'success'
+			    )
+				});
+
 		  }
 		})
 	},
+
+	uploadImg: function (event) {
+		console.log("A new token has been minted!");
+		console.log(event);
+
+		//remove extension from filename
+		title = event.args.tokenURI.replace(/\.[^/.]+$/, "");
+		var fd = new FormData();
+		fd.append('image', file, filename);
+		fd.append('owner', event.args.userAddress);
+		fd.append('id', event.args.tokenID);
+		fd.append('tokenURI', event.args.tokenURI);
+		fd.append('title', title);
+
+		$.ajax({
+  		type: "POST",
+  		url: "/upload",
+  		data: fd,
+			contentType: false,
+			processData: false,
+			success: function(data, textStatus, jqXHR) {
+				console.log(textStatus);
+				Swal.close();
+				Swal.fire({
+					title: 'Congratulations!',
+					text: 'Your NFT has just been minted',
+				}).then((result) => {
+					if(result.isConfirmed)
+						location.reload(true);
+				})
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				alert('Error occurred!');
+			},
+		});
+
+		console.log(URL.createObjectURL(file));
+	}
 }
 
 

@@ -10,3 +10,4 @@
  - [ ] images are not ordered
  - [ ] check uploaded files
  - [ ] normalize filename
+ - [ ] hide mnemonic and infura's key
