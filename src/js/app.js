@@ -75,7 +75,7 @@ App = {
 				if(App.account != '0x0' && App.account === itemArr.owner.toLowerCase()){
 					console.log("user has already connected");
 					lowerToolbarText.css({'width':'70%'});
-					App.addDeleteBtn(lowerToolbar, itemArr.tokenID);
+					App.addDeleteBtn(lowerToolbar, itemArr);
 				}
 			}
 		});
@@ -136,7 +136,7 @@ App = {
 											lowerToolbarText.css({'width':'70%'});
 
 											lowerToolbar= itemObj.divElement.find('.lowerToolbar');
-											App.addDeleteBtn(lowerToolbar, itemObj.tokenID);
+											App.addDeleteBtn(lowerToolbar, itemObj);
 										}
 									});
 									//console.log(account);
@@ -162,12 +162,12 @@ App = {
 
 	},
 
-	addDeleteBtn: function(lowerToolbar, tokenID){
+	addDeleteBtn: function(lowerToolbar, item){
 
 		var lowerToolbarBtn = $("<div>")
 			.addClass('lowerToolbarBtn d-flex justify-content-end')
 			.appendTo(lowerToolbar)
-			.on('click', function(){App.deleteNFT(tokenID);});
+			.on('click', function(){App.deleteNFT(item)});
 
 		$("<button>")
 			.addClass('btn btn-outline-danger btn-sm')
@@ -194,10 +194,19 @@ App = {
  		App.contracts["NFTCollection"].deployed().then(async(instance) =>{
 			App.instance = instance;
 
+			window.ethereum.on('accountsChanged', function (accounts) {
+  			console.log("new account is: "+accounts);
+				//TODO
+			})
+
 			$('input').on('change', App.createNFT);
 
 			App.instance.mintedToken().on('data', function(event){
 				App.uploadImg(event);
+			});
+
+			App.instance.burnedToken().on('data', function(event){
+				App.deleteImg(event);
 			});
 		});
 	},
@@ -235,7 +244,7 @@ App = {
 		})
 	},
 
-	deleteNFT: function(tokenID){
+	deleteNFT: function(item){
 		Swal.fire({
 		  title: 'Are you sure?',
 		  text: "You won't be able to revert this!",
@@ -246,16 +255,42 @@ App = {
 		  confirmButtonText: 'Yes, delete it!'
 		}).then((result) => {
 		  if (result.isConfirmed) {
-				console.log(tokenID);
-				App.instance.burnToken(tokenID, {from: App.account}).then((receipt) => {
-					Swal.fire(
-			      'Deleted!',
-			      'Your file has been deleted.',
-			      'success'
-			    )
-				});
+				Swal.fire({
+				  title: 'Burning &#x1f525; in progress',
+					text: "The transaction could take several seconds",
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					didOpen: () => {
+						Swal.showLoading()
+					}
+				})
 
-		  }
+				console.log(item.tokenID);
+				App.instance.burnToken(item.tokenID, {from: App.account})
+				.then((receipt) => {
+					console.log(receipt);
+					Swal.fire(
+				  	'Deleted!',
+				  	'Your file has been deleted.',
+				    'success'
+				  );
+				}).catch(function(err){
+					if(err.code === 4001){
+						Swal.fire({
+							icon: "error",
+							title: 'Error!',
+							text: "Please accept the transaction",
+						});
+					}
+					else{
+						Swal.fire({
+							icon: "error",
+							title: 'Error!',
+							text: err.code,
+						});
+					}
+				});
+			}
 		})
 	},
 
@@ -290,18 +325,53 @@ App = {
 				})
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				alert('Error occurred!');
+				Swal.fire({
+					icon: "error",
+					title: 'Error!',
+					text: "Something went wrong..",
+				});
 			},
 		});
 
 		console.log(URL.createObjectURL(file));
+	},
+
+	deleteImg: function (event) {
+		console.log("A token has been burned!");
+
+		title = event.args.tokenURI.replace(/\.[^/.]+$/, "");
+		jsonData = JSON.stringify({id: event.args.tokenID,
+			tokenURI: event.args.tokenURI});
+
+		$.ajax({
+  		type: "POST",
+  		url: "/delete",
+			dataType: "json",
+			contentType: "application/json",
+  		data: jsonData,
+			success: function(data, textStatus, jqXHR) {
+				console.log(textStatus);
+				Swal.close();
+				Swal.fire({
+					title: 'Congratulations!',
+					text: 'Your NFT has just been deleted',
+				}).then((result) => {
+					if(result.isConfirmed)
+						location.reload(true);
+				})
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				console.log(textStatus);
+				console.log(errorThrown);
+				alert('Something went wrong!');
+			},
+		});
 	}
 }
 
 
 //Call init whenever the window loads
 $(function() {
-
 	App.initGallery();
 	App.init();
 });

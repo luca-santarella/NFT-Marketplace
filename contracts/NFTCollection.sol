@@ -12,7 +12,7 @@ contract NFTCollection is ERC721 {
     mapping (uint256 => string) private _tokenURIs;
 
     event mintedToken(uint256 tokenID, address userAddress, string tokenURI);
-    event burnedToken(uint256 tokenID);
+    event burnedToken(uint256 tokenID, address userAddress, string tokenURI);
 
     constructor() ERC721("NFTCollection", "NFTC") {}
 
@@ -34,7 +34,7 @@ contract NFTCollection is ERC721 {
         address owner = ERC721.ownerOf(tokenID);
         require(msg.sender == owner, "You are not the owner of this NFT");
         _burn(tokenID);
-        emit burnedToken(tokenID);
+        emit burnedToken(tokenID, owner, _tokenURIs[tokenID]);
     }
 
     function tokenURI(uint256 tokenID) public view virtual override returns (string memory){

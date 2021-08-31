@@ -33,7 +33,7 @@
     <div id="mainUI" class="container">
       <div class="d-flex justify-content-between" style="background: linear-gradient(126deg, #85cdca 0%, #3a47d5 100%) rgba(76, 175, 80, 0.3);border-radius:5px;">
         <picture class="align-self-center" style="margin:5px;">
-          <img src="./images/NFT.png" class="img-fluid"/>
+          <img src="./images/assets/NFT.png" class="img-fluid"/>
         </picture>
         <h1 id="mainTitle" class="">POP NFT</h1>
         <div class="align-self-start">
@@ -53,16 +53,14 @@
       <div id="nanogallery2"></div>
 
     </div>
-    <footer class="row text-center fixed-bottom">
-      <div class="container">
-        <div class="d-flex justify-content-center">
-          <form id="upload-form">
-            <input type="file" id="upload" accept="image/png, image/jpeg" hidden />
-            <label for="upload">Create NFT</label>
-          </form>
-        </div>
+      <div class="d-flex justify-content-center fixed-bottom"
+        style="pointer-events:none;"
+      >
+        <form id="upload-form" style="pointer-events:initial;">
+          <input type="file" id="upload" accept="image/png, image/jpeg" hidden />
+          <label for="upload">Create NFT</label>
+        </form>
       </div>
-    </footer>
     </div>
 
     <!-- Web3 -->
