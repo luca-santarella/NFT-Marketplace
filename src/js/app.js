@@ -14,25 +14,26 @@ App = {
 				type: "GET",
 				url: "/NFT-images",
 				success: function(data, textStatus, jqXHR) {
+					console.log(data);
 					data.forEach(NFT => {
 						minOwner = NFT.owner.slice(0,5) + '...' + NFT.owner.slice(-5);
-						imageObj = {src: NFT.tokenURI, title: NFT.title, description: "Token ID: "+NFT.id+" Owner: "+NFT.owner, tokenID: NFT.id, owner: NFT.owner, divElement: null};
+						imageObj = {src: NFT.tokenURI, title: NFT.title, id: NFT.id, description: "Token ID: "+NFT.id+" Owner: "+NFT.owner, tokenID: NFT.id, owner: NFT.owner, divElement: null};
 						App.itemsNFTGallery.push(imageObj);
 					});
 					jQuery("#nanogallery2").nanogallery2( {
 						// ### gallery settings ###
 						thumbnailFillWidth: "fillWidth",
 						thumbnailHeight:  '200 XS250 LA250 XL350',
-						thumbnailWidth:   "300 XS350 LA400 XL500",
+						thumbnailWidth:   "350 XS350 LA400 XL500",
 						thumbnailLabel:     { titleFontSize: "15px" },
 						galleryL1FilterTags: true,
-						itemsBaseURL:     'images/',
+						itemsBaseURL:     '/images/',
 						viewerTools:    {
         			topLeft:    'label',
         			topRight:   'rotateLeft, rotateRight, fullscreenButton, closeButton'
       			},
 						thumbnailGutterHeight: 100,
-
+						gallerySorting: 'idAsc',
 						// ### callback for loading thumbnail ###
 						fnThumbnailInit: function($thumbnail, item, GOMidx){App.addLowerToolbar($thumbnail, item, GOMidx);},
 						// ### gallery content ###
@@ -125,13 +126,13 @@ App = {
 									$('#connectBtn').text("Connected ✓");
 									$('#connectBtn').prop('disabled', true);
 									$('input').off();
+									$('input').on('change', App.createNFT);
 									$('#connectBtn').off();
 									App.account = account;
 									console.log("account: "+account);
 									App.itemsNFTGallery.forEach(function(itemObj) {
 										console.log(itemObj);
 										if(itemObj.divElement != null && account === itemObj.owner.toLowerCase()){
-											console.log("inside");
 											lowerToolbarText = itemObj.divElement.find('.lowerToolbarText');
 											lowerToolbarText.css({'width':'70%'});
 
@@ -139,13 +140,22 @@ App = {
 											App.addDeleteBtn(lowerToolbar, itemObj);
 										}
 									});
-									//console.log(account);
 								}
 							});
-							console.log("DApp connected"); });
+							console.log("DApp connected");
 							sessionStorage.setItem('isConnected', true);
-
 							return App.initContract();
+						})
+						.catch(function(error){
+							if(error.code === -32002){
+								Swal.fire({
+									icon: 'warning',
+									title: 'Connection already open',
+									text: 'Please connect with your wallet',
+								});
+							}
+							console.log(error);
+						});
 					}
 					catch(error) { console.log(error); }
 				}
@@ -216,32 +226,74 @@ App = {
 		const curFiles = App.input.files;
 		file = curFiles[0];
 		filename = file.name;
-
+		title = '';
 		Swal.fire({
-		  title: 'Minting in progress',
-			text: "The transaction could take several seconds",
-			allowEscapeKey: false,
-			allowOutsideClick: false,
-			didOpen: () => {
-				Swal.showLoading()
-			}
+		  title: 'Enter a name for your NFT',
+		  input: 'text',
+		  inputAttributes: {
+		    autocapitalize: 'off'
+		  },
+		  showCancelButton: true,
+		  confirmButtonText: 'Submit',
+		  showLoaderOnConfirm: true,
+		  preConfirm: (inputTitle) => {
+				return $.ajax({
+					type: "GET",
+					url: "/item-name",
+					dataType: "json",
+					data: "title="+inputTitle,
+					success: function(data, textStatus, jqXHR) {
+						console.log(textStatus);
+						console.log(data);
+						if(data != null){
+
+							Swal.showValidationMessage(
+								`This title already exists, please choose another one.`
+							);
+							return "error";
+						}
+
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						console.log("hello");
+						title = inputTitle;
+					},
+				})
+				.catch(function(){
+					App.instance.mintToken(App.account, filename, title, {from: App.account}).then((receipt) => {
+						console.log("Successful mint");
+						console.log(receipt);
+
+					}).catch((error) => {
+						if(error.code === 4001){
+							console.log(error);
+							Swal.close();
+							Swal.fire({
+								icon: "error",
+								title: 'Error!',
+								text: 'You need to accept the transaction to create the NFT',
+							})
+							App.input.value = null;
+						}
+					})
+				})
+		  },
+		  allowOutsideClick: () => false
+		}).then((result) => {
+			console.log(result);
+		  if (result.isConfirmed) {
+				Swal.fire({
+				  title: 'Minting in progress',
+					text: "The transaction could take several seconds",
+					allowEscapeKey: false,
+					allowOutsideClick: false,
+					didOpen: () => {
+						Swal.showLoading()
+					}
+				})
+		  }
 		})
 
-		App.instance.mintToken(App.account, filename, {from: App.account}).then((receipt) => {
-
-			console.log("Successful mint");
-			console.log(receipt);
-
-		}).catch((error) => {
-			console.log(error);
-			Swal.close();
-			Swal.fire({
-				icon: "error",
-			  title: 'Error!',
-			  text: 'You need to accept the transaction to create the NFT',
-			})
-			App.input.value = null;
-		})
 	},
 
 	deleteNFT: function(item){
@@ -269,11 +321,7 @@ App = {
 				App.instance.burnToken(item.tokenID, {from: App.account})
 				.then((receipt) => {
 					console.log(receipt);
-					Swal.fire(
-				  	'Deleted!',
-				  	'Your file has been deleted.',
-				    'success'
-				  );
+					console.log("NFT was burned");
 				}).catch(function(err){
 					if(err.code === 4001){
 						Swal.fire({
@@ -298,14 +346,12 @@ App = {
 		console.log("A new token has been minted!");
 		console.log(event);
 
-		//remove extension from filename
-		title = event.args.tokenURI.replace(/\.[^/.]+$/, "");
 		var fd = new FormData();
 		fd.append('image', file, filename);
 		fd.append('owner', event.args.userAddress);
 		fd.append('id', event.args.tokenID);
 		fd.append('tokenURI', event.args.tokenURI);
-		fd.append('title', title);
+		fd.append('title', event.args.title);
 
 		$.ajax({
   		type: "POST",
@@ -339,9 +385,12 @@ App = {
 	deleteImg: function (event) {
 		console.log("A token has been burned!");
 
-		title = event.args.tokenURI.replace(/\.[^/.]+$/, "");
-		jsonData = JSON.stringify({id: event.args.tokenID,
-			tokenURI: event.args.tokenURI});
+		jsonData = JSON.stringify(
+			{id: event.args.tokenID,
+				tokenURI: event.args.tokenURI,
+				title: event.args.titles
+			}
+		);
 
 		$.ajax({
   		type: "POST",
@@ -353,6 +402,7 @@ App = {
 				console.log(textStatus);
 				Swal.close();
 				Swal.fire({
+					icon: 'success',
 					title: 'Congratulations!',
 					text: 'Your NFT has just been deleted',
 				}).then((result) => {

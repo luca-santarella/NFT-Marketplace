@@ -7,9 +7,12 @@
  - [ ] IPFS integration (check Arweave)
  - [x] user address is not selectable
  - [ ] link to etherscan for the NFT
- - [ ] images are not ordered
+ - [x] images are not ordered
  - [ ] check uploaded files
  - [ ] normalize filename
- - [ ] hide mnemonic and infura's key
+ - [x] hide mnemonic and infura's key
  - [ ] handle account change in Metamask (interface)
  - [ ] do not reload page but reload gallery
+ - [ ] graphical edits to GUI
+ - [x] no connection to MM and then you create NFT NOT WORKING
+ - [x] implement name assignment
