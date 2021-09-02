@@ -25,14 +25,14 @@ App = {
 						thumbnailFillWidth: "fillWidth",
 						thumbnailHeight:  '200 XS250 LA250 XL350',
 						thumbnailWidth:   "350 XS350 LA400 XL500",
-						thumbnailLabel:     { titleFontSize: "15px" },
+						thumbnailLabel:     { titleFontSize: "20px" },
 						galleryL1FilterTags: true,
 						itemsBaseURL:     '/images/',
 						viewerTools:    {
         			topLeft:    'label',
         			topRight:   'rotateLeft, rotateRight, fullscreenButton, closeButton'
       			},
-						thumbnailGutterHeight: 100,
+						thumbnailGutterHeight: 125,
 						gallerySorting: 'idAsc',
 						// ### callback for loading thumbnail ###
 						fnThumbnailInit: function($thumbnail, item, GOMidx){App.addLowerToolbar($thumbnail, item, GOMidx);},
@@ -96,6 +96,8 @@ App = {
 				icon: 'error',
 				title: 'Error',
 				text: 'Please connect your wallet with Metamask first',
+				showConfirmButton:true,
+				confirmButtonColor: '#e27d5f',
 			})
 		});
 		$('#connectBtn').on('click',App.initWeb3);
@@ -113,7 +115,9 @@ App = {
 					Swal.fire({
 		  			icon: 'error',
 		  			title: 'Warning',
-		  			text: 'Please select the Ropsten testnet and reload'
+		  			text: 'Please select the Ropsten testnet',
+						showConfirmButton:true,
+						confirmButtonColor: '#e27d5f',
 					});
 				}
 				else{
@@ -123,8 +127,11 @@ App = {
 							//Store ETH current account
 							web3.eth.getCoinbase(function(err,account) {
 								if(err == null) {
-									$('#connectBtn').text("Connected ✓");
-									$('#connectBtn').prop('disabled', true);
+
+									$('.fa-wallet').css('display', 'none');
+									$('#connectBtn')
+										.prop('disabled', true)
+										.append('<i class="fas fa-link"></i>');
 									$('input').off();
 									$('input').on('change', App.createNFT);
 									$('#connectBtn').off();
@@ -152,6 +159,8 @@ App = {
 									icon: 'warning',
 									title: 'Connection already open',
 									text: 'Please connect with your wallet',
+									showConfirmButton:true,
+									confirmButtonColor: '#e27d5f',
 								});
 							}
 							console.log(error);
@@ -166,6 +175,8 @@ App = {
   			icon: 'error',
   			title: 'Oops...',
   			text: 'A Web3 provider was not found',
+				showConfirmButton:true,
+				confirmButtonColor: '#e27d5f',
   			footer: '<a href="https://metamask.io/download.html">Install a web3 provider such as Metamask</a>'
 			})
 		}
@@ -235,6 +246,8 @@ App = {
 		  },
 		  showCancelButton: true,
 		  confirmButtonText: 'Submit',
+			showConfirmButton:true,
+			confirmButtonColor: '#e27d5f',
 		  showLoaderOnConfirm: true,
 		  preConfirm: (inputTitle) => {
 				return $.ajax({
@@ -272,6 +285,8 @@ App = {
 								icon: "error",
 								title: 'Error!',
 								text: 'You need to accept the transaction to create the NFT',
+								showConfirmButton:true,
+								confirmButtonColor: '#e27d5f',
 							})
 							App.input.value = null;
 						}
@@ -302,8 +317,8 @@ App = {
 		  text: "You won't be able to revert this!",
 		  icon: 'warning',
 		  showCancelButton: true,
-		  confirmButtonColor: '#3085d6',
-		  cancelButtonColor: '#d33',
+			showConfirmButton:true,
+			confirmButtonColor: '#e27d5f',
 		  confirmButtonText: 'Yes, delete it!'
 		}).then((result) => {
 		  if (result.isConfirmed) {
@@ -328,6 +343,8 @@ App = {
 							icon: "error",
 							title: 'Error!',
 							text: "Please accept the transaction",
+							showConfirmButton:true,
+							confirmButtonColor: '#e27d5f',
 						});
 					}
 					else{
@@ -335,6 +352,8 @@ App = {
 							icon: "error",
 							title: 'Error!',
 							text: err.code,
+							showConfirmButton:true,
+							confirmButtonColor: '#e27d5f',
 						});
 					}
 				});
@@ -365,6 +384,8 @@ App = {
 				Swal.fire({
 					title: 'Congratulations!',
 					text: 'Your NFT has just been minted',
+					showConfirmButton:true,
+					confirmButtonColor: '#e27d5f',
 				}).then((result) => {
 					if(result.isConfirmed)
 						location.reload(true);
@@ -375,6 +396,8 @@ App = {
 					icon: "error",
 					title: 'Error!',
 					text: "Something went wrong..",
+					showConfirmButton:true,
+					confirmButtonColor: '#e27d5f',
 				});
 			},
 		});
@@ -405,6 +428,8 @@ App = {
 					icon: 'success',
 					title: 'Congratulations!',
 					text: 'Your NFT has just been deleted',
+					showConfirmButton:true,
+					confirmButtonColor: '#e27d5f',
 				}).then((result) => {
 					if(result.isConfirmed)
 						location.reload(true);

@@ -1,13 +1,17 @@
 @media only screen and (max-width: 1000px) {
-
   #mainTitle {
-    font-size: 70px !important;
+    font-size: 5rem !important;
+  }
+
+  #connectBtn{
+    font-size: 15px !important;
   }
 }
 
 @media only screen and (max-width: 800px) {
-  #upload-input{
-    font-size: 20px;
+
+  #mainTitle {
+    font-size: 4rem !important;
   }
 
   #connectBtnText{
@@ -16,18 +20,39 @@
 }
 
 @media only screen and (max-width: 500px) {
-  .img-fluid{
-    max-width: 70% !important;
-  }
   #mainTitle {
-    font-size: 50px !important;
+    font-size: 3rem !important;
   }
-  #upload-input{
-    font-size: 15px;
+
+  body{
+    background-color: #fcac9e82 !important;
+    background-image: none !important;
+  }
+
+  #connectBtn{
+    font-size: 15px !important;*/
+  }
+}
+
+@media only screen and (max-width: 400px) {
+
+
+  #mainTitle {
+    font-size: 1.8rem !important;
+  }
+
+  body{
+    background-color: #fcac9e82 !important;
+    background-image: none !important;
+  }
+
+  #connectBtn{
+    font-size: 10px !important;
   }
 }
 
 body {
+  font-family: 'Montserrat', sans-serif;
   background-image: url('https://mdbootstrap.com/img/Photos/Others/images/76.webp');
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -40,7 +65,7 @@ body {
 label{
   font-size: 30px !important;
   display: inline-block;
-  background-color: #0062cc;
+  background-color: #5578d1;
   color: white;
   padding: 0.5rem;
   font-family: sans-serif;
@@ -50,8 +75,9 @@ label{
 }
 
 #mainTitle {
-
-  font-size: 100px;
+  flex: 7;
+  text-align: center;
+  font-size: 6rem;
   font-weight: 300;
 	font-family: 'Poppins', sans-serif;
  	color: #e27d5f;
@@ -76,6 +102,7 @@ label{
 
 
 #connectBtn{
+
   color: #fff;
   border-color: #d2795f;
   background-color: #e27d5f;
