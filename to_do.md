@@ -6,7 +6,7 @@
  - [x] implement token burn on smart contract
  - [ ] IPFS integration (check Arweave)
  - [x] user address is not selectable
- - [ ] link to etherscan for the NFT
+ - [x] link to etherscan for the NFT
  - [x] images are not ordered
  - [ ] check uploaded files
  - [ ] normalize filename

@@ -113,10 +113,8 @@ app.get('/',
 app.post('/upload', upload.single('image'),
   function (req, res, next) {
 
-    console.log(req.body.title);
     var dict = {id: req.body.id, title: req.body.title, owner: req.body.owner,
       tokenURI: newTokenURI};
-    console.log(req.body.title);
     var dictString = JSON.stringify(dict);
 
     fs.writeFile("./NFTs/"+req.body.title+".json", dictString,
@@ -162,7 +160,7 @@ app.post('/delete',
 
 app.get('/NFT-images',
   function(req, res){
-    db.all(`SELECT tokenID as id,title,owner,tokenURI
+    db.all(`SELECT tokenID as id,title,owner,tokenURI,txHash
              FROM items WHERE burned = 0;`, [], (err, rows) => {
       if (err) {
         throw err;
@@ -174,7 +172,6 @@ app.get('/NFT-images',
 
 app.get('/item-name', // TODO maybe rethink this
   function(req, res){
-    console.log(req.query.title);
     sqlSearchItem = 'SELECT *\
       FROM items\
       WHERE title = ?';

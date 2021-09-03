@@ -6,7 +6,6 @@ App = {
 	account: '0x0',  //current Ethereum account
 	input: null,  //TODO
 	instance: null, //instance of the smart contract (already deployed)
-	txHash: '',
 	itemsNFTGallery: [],
 
 	initGallery: function(){
@@ -17,14 +16,17 @@ App = {
 				success: function(data, textStatus, jqXHR) {
 					console.log(data);
 					data.forEach(NFT => {
-						imageObj = {src: NFT.tokenURI, title: NFT.title, id: NFT.id, description: "Token ID: "+NFT.id+" Owner: "+NFT.owner, tokenID: NFT.id, owner: NFT.owner, divElement: null};
+						imageObj = {src: NFT.tokenURI, title: NFT.title, id: NFT.id,
+												description: "Token ID: "+NFT.id+" Owner: "+NFT.owner,
+												tokenID: NFT.id, owner: NFT.owner, divElement: null,
+												txHash: NFT.txHash};
 						App.itemsNFTGallery.push(imageObj);
 					});
 					jQuery("#nanogallery2").nanogallery2( {
 						// ### gallery settings ###
 						thumbnailFillWidth: "fillWidth",
-						thumbnailHeight:  '300 XS300 LA250 XL350',
-						thumbnailWidth:   "350 XS400 LA400 XL500",
+						thumbnailHeight:  '300 XS300 LA400 XL400',
+						thumbnailWidth:   "350 XS400 LA500 XL500",
 						thumbnailLabel:     { titleFontSize: "20px" },
 						galleryL1FilterTags: true,
 						itemsBaseURL:     '/images/',
@@ -78,9 +80,14 @@ App = {
 					.text("Token ID: "+itemArr.id)
 					.appendTo(lowerToolbarText);
 
-				minOwner = itemArr.owner.substring(0,4) + "..." + itemArr.owner.slice(-4);
+				var minOwner = itemArr.owner.substring(0,4) + "..." + itemArr.owner.slice(-4);
 				$("<div>")
 					.text("Owner: "+minOwner)
+					.appendTo(lowerToolbarText);
+
+				var txEtherscan = "https://ropsten.etherscan.io/tx/"+itemArr.txHash;
+				$("<div>")
+					.html('Tx: <a href="'+txEtherscan+'">Check on Etherscan</a>')
 					.appendTo(lowerToolbarText);
 
 				//user has already connected before image was loaded
@@ -287,7 +294,6 @@ App = {
 					App.instance.mintToken(App.account, filename, title, {from: App.account}).then((receipt) => {
 						console.log("Successful mint");
 						console.log(receipt.tx);
-						App.txHash = tx;
 					}).catch((error) => {
 						if(error.code === 4001){
 							console.log(error);
@@ -382,8 +388,7 @@ App = {
 		fd.append('id', event.args.tokenID);
 		fd.append('tokenURI', event.args.tokenURI);
 		fd.append('title', event.args.title);
-		fd.append('txHash', App.txHash);
-		App.txHash = '';
+		fd.append('txHash', event.transactionHash);
 
 		$.ajax({
   		type: "POST",
