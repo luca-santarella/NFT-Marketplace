@@ -40,7 +40,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,200&display=swap" rel="stylesheet">
     <!-- Montserrat Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
   </head>
 
   <title>POP NFT</title>
@@ -55,33 +55,30 @@
         <div id="mainTitle">POP NFT</div>
         <div class="align-self-start" style="margin-left:auto;flex:1;">
           <button type="button" class="btn btn-md" id="connectBtn">
-            <i class="fas fa-wallet"></i>
-
             <span id="connectBtnText">Connect</span>
+            <i class="fas fa-wallet"></i>
           </button>
         </div>
       </div>
       <div  class="col-lg-auto" style="padding-left: 0;padding-right: 0;">
         <div id="welcomeHeader" class="lead">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          Maecenas lorem odio, vestibulum id orci vitae, consequat elementum
-          turpis. In dignissim accumsan augue ut posuere. Donec euismod lorem
-          quis varius tempor.
+          Welcome on <b>POP NFT!</b> On this platform you can create your own NFT
+          on the Ethereum blockchain or admire one of the artworks that have been
+          already minted by the community. <br>
+          Click on the connect button and then
+          click on "New NFT" to mint your very own NFT!
         </div>
       </div>
 
       <!-- ### position of the gallery ### -->
       <div id="nanogallery2"></div>
-
-    </div>
-      <div class="d-flex justify-content-center fixed-bottom"
-        style="pointer-events:none;"
-      >
+      <div class="fixed-bottom d-flex justify-content-center " id="upload-btn">
         <form id="upload-form" style="pointer-events:initial;">
           <input type="file" id="upload" accept="image/png, image/jpeg" hidden />
-          <label for="upload">Create NFT</label>
+          <label for="upload">New NFT</label>
         </form>
       </div>
+
     </div>
 
     <!-- Web3 -->

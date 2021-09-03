@@ -67,6 +67,7 @@ db.run('CREATE TABLE IF NOT EXISTS items (\
   title TEXT NOT NULL UNIQUE, \
   owner TEXT NOT NULL, \
   tokenURI TEXT NOT NULL, \
+  txHash TEXT NOT NULL, \
   burned INTEGER NOT NULL DEFAULT 0);');
 
 
@@ -115,6 +116,7 @@ app.post('/upload', upload.single('image'),
     console.log(req.body.title);
     var dict = {id: req.body.id, title: req.body.title, owner: req.body.owner,
       tokenURI: newTokenURI};
+    console.log(req.body.title);
     var dictString = JSON.stringify(dict);
 
     fs.writeFile("./NFTs/"+req.body.title+".json", dictString,
@@ -123,9 +125,11 @@ app.post('/upload', upload.single('image'),
         console.log('error', err);
     });
 
-    sqlInsertItem = 'INSERT INTO items (tokenID,title,owner,tokenURI) \
-      VALUES (?, ?, ?, ?);';
-    db.run(sqlInsertItem, [req.body.id, req.body.title, req.body.owner, newTokenURI], function(err) {
+    console.log("file has been written");
+
+    sqlInsertItem = 'INSERT INTO items (tokenID,title,owner,tokenURI,txHash) \
+      VALUES (?, ?, ?, ?, ?);';
+    db.run(sqlInsertItem, [req.body.id, req.body.title, req.body.owner, newTokenURI, req.body.txHash], function(err) {
       if (err) {
         return console.log(err.message);
       }

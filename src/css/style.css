@@ -19,6 +19,17 @@
   }
 }
 
+@media only screen and (max-width: 574px) {
+  #mainUI{
+    margin-top: 0px !important;
+  }
+
+  .container{
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+
+}
 @media only screen and (max-width: 500px) {
   #mainTitle {
     font-size: 3rem !important;
@@ -46,13 +57,16 @@
     background-image: none !important;
   }
 
+  #welcomeHeader{
+    background-color: initial !important;
+  }
+
   #connectBtn{
     font-size: 10px !important;
   }
 }
 
 body {
-  font-family: 'Montserrat', sans-serif;
   background-image: url('https://mdbootstrap.com/img/Photos/Others/images/76.webp');
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -92,14 +106,10 @@ label{
   padding-bottom:70px;
 }
 
-#upload-input{
-  position: absolute;
-  font-size: 30px;
-  opacity: 0;
-  right: 0;
-  top: 0;
+#upload-btn{
+  margin-left:10px;
+  margin-bottom: 10px;
 }
-
 
 #connectBtn{
 
@@ -116,6 +126,7 @@ label{
 }
 
 #welcomeHeader{
+  background-color: #fcac9e82;
   font-family: 'Montserrat', sans-serif;
   border-radius: 5px;
   padding: 10px;
@@ -141,6 +152,8 @@ label{
 }
 
 .lowerToolbarText{
+  flex-direction: column;
+  display: flex;
   word-break: break-word;
   width: 70%;
 
