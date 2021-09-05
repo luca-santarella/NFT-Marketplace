@@ -13,19 +13,20 @@ const GracefulShutdownManager =
 const sqlite3 = require('sqlite3').verbose();
 const keccak256 = require('keccak256');
 
-var app = express();
+const app = require("https-localhost")()
 
 /* listen on port localhost:3000 */
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 443;
 debug("Using port ", port);
-var server = app.listen(port,
-  function() {
-    var host = "localhost";
-    var port = server.address().port;
-    console.log('Listening at http://%s:%s', host, port);
-});
+app.listen(port);
+// var server = app.listen(port,
+//   function() {
+//     var host = "localhost";
+//     var port = server.address().port;
+//     console.log('Listening at https://%s:%s', host, port);
+// });
 
-const shutdownManager = new GracefulShutdownManager(server);
+//const shutdownManager = new GracefulShutdownManager(server);
 
 /* handle SIGINT and SIGTERM signals */
 process.on('SIGINT', () => {
@@ -95,12 +96,7 @@ app.use(express.static('.'));
 app.use(express.static(__dirname + '/images/'));
 app.use(express.static(__dirname + '/images/assets/'));
 app.use(express.static(__dirname + '/build/contracts'));
-app.use(express.static(__dirname + '/node_modules/@truffle/contract'));
-app.use(express.static(__dirname + '/node_modules/web3'));
-app.use(express.static(__dirname + '/node_modules/sweetalert2'));
-app.use(express.static(__dirname + '/node_modules/nanogallery2'));
-app.use(express.static(__dirname + '/node_modules/jquery'));
-app.use(express.static(__dirname + '/node_modules/@fortawesome/fontawesome-free'));
+app.use(express.static(__dirname + '/node_modules/'));
 
 
 // ### API ENDPOINTS ###

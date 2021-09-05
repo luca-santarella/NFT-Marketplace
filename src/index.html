@@ -22,19 +22,27 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="POP NFT is a NFT platform which allows you to create your own NFT on the Ethereum blockchain">
     <link rel="stylesheet" href="css/style.css"  type="text/css"/>
 
     <!-- jQuery -->
-    <script src="./dist/jquery.min.js" type="text/javascript"></script>
+    <script src="./jquery/dist/jquery.min.js" type="text/javascript"></script>
+    <!-- detect-provider -->
+    <script defer src="./@metamask/detect-provider/dist/detect-provider.min.js" type="text/javascript"></script>
+    <!-- Web3 modal -->
+    <script src="./web3modal/dist/index.js" type="text/javascript"></script>
+    <!-- WalletConnectProvider-->
+    <script type="text/javascript" src="https://unpkg.com/@walletconnect/web3-provider@1.2.1/dist/umd/index.min.js"></script>
+    <!-- <script type="text/javascript" src="./@walletconnect/web3-provider/dist/esm/index.js"></script> -->
     <!-- nanogallery2 -->
-    <link  href="./dist/css/nanogallery2.min.css" rel="stylesheet" type="text/css">
-    <script defer type="text/javascript" src="./dist/jquery.nanogallery2.min.js"></script>
+    <link  href="./nanogallery2/dist/css/nanogallery2.min.css" rel="stylesheet" type="text/css">
+    <script defer type="text/javascript" src="./nanogallery2/dist/jquery.nanogallery2.min.js"></script>
     <!-- sweetalert2 -->
-    <script defer type="text/javascript" src="./dist/sweetalert2.all.min.js"></script>
+    <script defer type="text/javascript" src="./sweetalert2/dist/sweetalert2.all.min.js"></script>
     <!--<link rel="stylesheet" href="css/cryptofont.css">-->
     <link rel="stylesheet" href="./css/bootstrap.min.css" type="text/css">
     <!-- Font Awesome -->
-    <link href="./css/all.css" rel="stylesheet"> <!--load all styles -->
+    <link href="./@fortawesome/fontawesome-free/css/all.css" rel="stylesheet"> <!--load all styles -->
     <!-- Poppins Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,7 +58,7 @@
     <div id="mainUI" class="container">
       <div class="d-flex justify-content-between" style="background: linear-gradient(126deg, #85cdca 0%, #3a47d5 100%) rgba(76, 175, 80, 0.3);border-radius:5px;">
         <picture class="align-self-center" style="margin:5px;flex:1">
-          <img src="/NFT.png" class="img-fluid"/>
+          <img src="/NFT.png" alt="NFT logo" width="128" height="128" class="img-fluid"/>
         </picture>
         <div id="mainTitle">POP NFT</div>
         <div class="align-self-start" style="margin-left:auto;flex:1;">
@@ -72,8 +80,8 @@
 
       <!-- ### position of the gallery ### -->
       <div id="nanogallery2"></div>
-      <div class="fixed-bottom d-flex justify-content-center " id="upload-btn">
-        <form id="upload-form" style="pointer-events:initial;">
+      <div class="d-flex justify-content-center fixed-bottom" id="upload-btn">
+        <form id="upload-form">
           <input type="file" id="upload" accept="image/png, image/jpeg" hidden />
           <label for="upload">New NFT</label>
         </form>
@@ -82,8 +90,9 @@
     </div>
 
     <!-- Web3 -->
-    <script defer src="./dist/web3.min.js"></script>
-    <script defer src="./dist/truffle-contract.js"></script>
+    <script defer src="./web3/dist/web3.min.js"></script>
+    <!-- @truffle/contract -->
+    <script defer src="./@truffle/contract/dist/truffle-contract.js"></script>
     <!-- App -->
     <script src="./js/app.js"></script>
   </body>

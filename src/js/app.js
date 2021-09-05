@@ -4,7 +4,6 @@ App = {
 	contracts: {}, //store contract abstractions
 	web3Provider: null, //web3 provider
 	account: '0x0',  //current Ethereum account
-	input: null,  //TODO
 	instance: null, //instance of the smart contract (already deployed)
 	itemsNFTGallery: [],
 
@@ -67,11 +66,6 @@ App = {
 
 
 
-		console.log(item);
-		//minimizied version of owner address
-
-
-
 		App.itemsNFTGallery.forEach(function(itemArr) {
 			if(itemArr.title === item.title){
 				itemArr.divElement = $thumbnail;
@@ -103,10 +97,12 @@ App = {
 	},
 
 	init: function() {
+
 		var isConnected = sessionStorage.getItem('isConnected');
 
-		if (isConnected)
+		if (isConnected){
 			return App.initWeb3();
+		}
 
 		$('input').on('click', function(event){
 			event.preventDefault();
@@ -121,82 +117,130 @@ App = {
 		$('#connectBtn').on('click',App.initWeb3);
 	},
 
-	initWeb3: function(){
-		/* initialize Web3 */
-		if(typeof web3 != 'undefined') { //check whether exists a provider, e.g. Metamask
+	initWeb3: async function(){
 
-			App.web3Provider = window.ethereum; //standard since 2/11/18
-			web3 = new Web3(App.web3Provider);
-			web3.eth.net.getId().then(netId => {
-				if(netId != 3){ //Ropsten testnet chain ID is 3
-					$('#upload').prop('disabled', true);
+		const Web3Modal = window.Web3Modal.default;
+		const WalletConnectProvider = window.WalletConnectProvider.default;
+
+		// Web3modal instance
+		let web3Modal;
+
+		const providerOptions = {
+	    walletconnect: {
+	      package: WalletConnectProvider,
+	      options: {
+	        infuraId: "a4de77d4c2894e2387ff4432d935587e0",
+	      }
+	    },
+		};
+
+		web3Modal = new Web3Modal({
+	    cacheProvider: false, // optional
+	    providerOptions, // required
+	    disableInjectedProvider: false, // optional. For MetaMask / Brave / Opera.
+	  });
+
+		provider = await detectEthereumProvider();
+
+		if(provider){
+			console.log("Metamask was detected");
+			App.web3Provider = provider; //standard since 2/11/18
+		}
+		else{
+			console.log("Metamask wan not detected");
+			try {
+				App.web3Provider = await web3Modal.connect();
+				console.log(web3Modal);
+				//App.web3Provider = window.ethereum; //standard since 2/11/18
+			}
+			catch(err) {
+				console.log(err);
+				if(err==="Modal closed by user"){
 					Swal.fire({
-		  			icon: 'error',
-		  			title: 'Warning',
-		  			text: 'Please select the Ropsten testnet',
+						icon: 'error',
+						title: 'Oops...',
+						text: 'A Web3 provider was not selected',
 						showConfirmButton:true,
 						confirmButtonColor: '#e27d5f',
-					});
+					})
 				}
 				else{
-					$('#upload').prop('disabled', false);
-					try{	//permission popup
-						ethereum.enable().then(async() => {
-							//Store ETH current account
-							web3.eth.getCoinbase(function(err,account) {
-								if(err == null) {
-									$('#connectBtnText').text("Connected");
-									$('.fa-wallet').css('display', 'none');
-									$('#connectBtn')
-										.prop('disabled', true)
-										.append('<i class="fas fa-link"></i>');
-									$('input').off();
-									$('input').on('change', App.createNFT);
-									$('#connectBtn').off();
-									App.account = account;
-									console.log("account: "+account);
-									App.itemsNFTGallery.forEach(function(itemObj) {
-										console.log(itemObj);
-										if(itemObj.divElement != null && account === itemObj.owner.toLowerCase()){
-											lowerToolbarText = itemObj.divElement.find('.lowerToolbarText');
-											lowerToolbarText.css({'width':'70%'});
-
-											lowerToolbar= itemObj.divElement.find('.lowerToolbar');
-											App.addDeleteBtn(lowerToolbar, itemObj);
-										}
-									});
-								}
-							});
-							console.log("DApp connected");
-							sessionStorage.setItem('isConnected', true);
-							return App.initContract();
-						})
-						.catch(function(error){
-							if(error.code === -32002){
-								Swal.fire({
-									icon: 'warning',
-									title: 'Connection already open',
-									text: 'Please connect with your wallet',
-									showConfirmButton:true,
-									confirmButtonColor: '#e27d5f',
-								});
-							}
-							console.log(error);
-						});
-					}
-					catch(error) { console.log(error); }
+					Swal.fire({
+						icon: 'error',
+						title: 'Oops...',
+						text: 'A Web3 provider was not found',
+						showConfirmButton:true,
+						confirmButtonColor: '#e27d5f',
+						footer: '<a href="https://metamask.io/download.html">Install a web3 provider such as Metamask</a>'
+					})
 				}
-			});
+			}
 		}
-		else {
+		// Get connected chain id from Ethereum node
+		web3 = new Web3(App.web3Provider);
+		// Get connected chain id from Ethereum node
+	  const netId = await web3.eth.getChainId();
+		console.log(netId);
+		if(netId != 3){ //Ropsten testnet chain ID is 3
+			$('#upload').prop('disabled', true);
 			Swal.fire({
   			icon: 'error',
-  			title: 'Oops...',
-  			text: 'A Web3 provider was not found',
+  			title: 'Warning',
+  			text: 'Please select the Ropsten testnet',
 				showConfirmButton:true,
 				confirmButtonColor: '#e27d5f',
-  			footer: '<a href="https://metamask.io/download.html">Install a web3 provider such as Metamask</a>'
-			})
+			});
+			// Close provider session
+			await App.web3Provider.disconnect()
+			return App.init();
+		}
+		else{
+
+			try{	//permission popup
+				web3.eth.requestAccounts().then(function(){
+					//Store ETH current account
+					web3.eth.getCoinbase(function(err,account) {
+						if(err == null) {
+							$('#connectBtnText').text("Connected");
+							$('.fa-wallet').css('display', 'none');
+							$('#connectBtn')
+								.prop('disabled', true)
+								.append('<i class="fas fa-link"></i>');
+							$('input').off();
+							$('input').on('change', App.createNFT);
+							$('#connectBtn').off();
+							$('#upload').prop('disabled', false);
+							App.account = account;
+							console.log("account: "+account);
+							App.itemsNFTGallery.forEach(function(itemObj) {
+								if(itemObj.divElement != null && account === itemObj.owner.toLowerCase()){
+									lowerToolbarText = itemObj.divElement.find('.lowerToolbarText');
+									lowerToolbarText.css({'width':'70%'});
+
+									lowerToolbar= itemObj.divElement.find('.lowerToolbar');
+									App.addDeleteBtn(lowerToolbar, itemObj);
+								}
+							});
+						}
+					});
+					console.log("DApp connected");
+					sessionStorage.setItem('isConnected', true);
+					return App.initContract();
+				})
+				.catch(function(error){
+					if(error.code === -32002){
+						Swal.fire({
+							icon: 'warning',
+							title: 'Connection already open',
+							text: 'Please connect with your wallet',
+							showConfirmButton:true,
+							confirmButtonColor: '#e27d5f',
+						});
+					}
+					console.log(error);
+				});
+			}
+			catch(error) { console.log(error); }
 		}
 
 	},
@@ -251,11 +295,11 @@ App = {
 	},
 
 	createNFT: function(){
-		App.input = document.querySelector('input');
-		const curFiles = App.input.files;
+		var input = document.querySelector('input');
+		const curFiles = input.files;
 		file = curFiles[0];
 		filename = file.name;
-		title = '';
+		var title = '';
 		Swal.fire({
 		  title: 'Enter a name for your NFT',
 		  input: 'text',
@@ -274,8 +318,6 @@ App = {
 					dataType: "json",
 					data: "title="+inputTitle,
 					success: function(data, textStatus, jqXHR) {
-						console.log(textStatus);
-						console.log(data);
 						if(data != null){
 
 							Swal.showValidationMessage(
@@ -286,7 +328,6 @@ App = {
 
 					},
 					error: function(jqXHR, textStatus, errorThrown) {
-						console.log("hello");
 						title = inputTitle;
 					},
 				})
@@ -305,17 +346,17 @@ App = {
 								showConfirmButton:true,
 								confirmButtonColor: '#e27d5f',
 							})
-							App.input.value = null;
+							input.value = null;
 						}
 					})
 				})
 		  },
 		  allowOutsideClick: () => false
 		}).then((result) => {
-			console.log(result);
 		  if (result.isConfirmed) {
 				Swal.fire({
 				  title: 'Minting in progress',
+				//	timer: 2000,
 					text: "The transaction could take several seconds",
 					allowEscapeKey: false,
 					allowOutsideClick: false,
