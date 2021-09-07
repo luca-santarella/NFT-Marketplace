@@ -17,3 +17,5 @@
  - [x] graphical edits to GUI
  - [x] no connection to MM and then you create NFT NOT WORKING
  - [x] implement name assignment
+ - [ ] should title contain empty spaces?
+ - [ ] App.input is null if user denies tx
