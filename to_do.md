@@ -12,10 +12,10 @@
  - [ ] normalize filename
  - [x] hide mnemonic and infura's key
  - [ ] handle account change in Metamask (interface)
-  - [ ] handle network change in Metamask
+- [ ] handle network change in Metamask
  - [ ] do not reload page but reload gallery
  - [x] graphical edits to GUI
  - [x] no connection to MM and then you create NFT NOT WORKING
  - [x] implement name assignment
- - [ ] should title contain empty spaces?
+ - [x] should title contain empty spaces? YES
  - [ ] App.input is null if user denies tx
