@@ -7,7 +7,7 @@ App = {
 	web3Provider: null, //web3 provider
 	account: '0x0',  //current Ethereum account
 	//smart contract address
-	contractAddress:'0xAC6d1527F211Bc231C6d8a2BAcD34FCe6b3ee10b',
+	contractAddress:'0x0302F7a421201Ae0538819400935e61C0122E468',
 	instance: null, //instance of the smart contract (already deployed)
 	itemsNFTGallery: [],
 
@@ -130,7 +130,7 @@ App = {
 	    walletconnect: {
 	      package: WalletConnectProvider,
 	      options: {
-	        infuraId: "a4de77d4c2894e2387ff4432d935587e0", //TODO
+	        infuraId: "a4de77d4c2894e2387ff4432d935587e", //TODO
 	      }
 	    },
 		};
@@ -260,7 +260,7 @@ App = {
 
 		//Init contracts getting the ABI
 		$.getJSON('NFTCollection.json').done(function(NFTContract) {
-			App.web3.eth.Contract.setProvider(App.web3Provider);
+			//App.web3.eth.Contract.setProvider(App.web3Provider);
 			App.instance = new App.web3.eth.Contract(NFTContract.abi,App.contractAddress);
 			console.log("All done!");
 			return App.listenForEvents();
@@ -281,7 +281,7 @@ App = {
 		// 	console.log("received event mintedToken");
 		// 	App.uploadImg(event);
 		// });
-
+		//
 		// App.instance.events.burnedToken().on('data', function(event){
 		// 	App.deleteImg(event);
 		// });
@@ -325,16 +325,17 @@ App = {
 				})
 				.catch(function(){App.mintToken(filename, title);})
 		  },
-		  allowOutsideClick: () => false
+		  //allowOutsideClick: () => false
 		}).then((result) => {
 		  if (result.isConfirmed) {
-				Swal.fire({
-					icon: 'warning',
-				  title: 'Confirm transaction',
-					timer: 5000,
-					text: "Please confirm the transaction with your wallet",
-					showConfirmButton: false,
-				})
+				console.log("result is confirmed");
+				// Swal.fire({
+				// 	icon: 'warning',
+				//   title: 'Confirm transaction',
+				// 	timer: 3000,
+				// 	text: "Please confirm the transaction with your wallet",
+				// 	showConfirmButton: false,
+				// })
 		  }
 		})
 		.catch((error) =>{
@@ -346,25 +347,19 @@ App = {
 
 	mintToken: async function(filename, title){
 		console.log("inside mintToken");
-		gasPrice = 9999999990; //almost 4 Gwei as default
-		// gasPriceNet = App.web3.eth.getGasPrice();
-		// if(gasPriceNet != null){
-		// 	console.log(gasPriceNet);
-		// 	gasPrice = gasPriceNet;
-		// }
-		// console.log(gasPriceNet);
-		// console.log(gasPrice);
-		console.log("after Price");
+		gasPrice = 2000000000; //2 Gwei as default
+
+		//App.web3.eth.getGasPrice(function(gasPrice){console.log(gasPrice);});
+
 		//get encoded transaction with params
+
 		var data = App.instance.methods.mintToken(App.account, filename, title).encodeABI();
-		console.log(data);
-		console.log("after encode ABI")
-		//send data to Ethereum blockchain (gasPrice is set automatically with web3.eth.estimateGas)
-		var promiEvent = await App.web3.eth.sendTransaction({
+		// send data to Ethereum blockchain (gasPrice is set automatically with web3.eth.estimateGas)
+		await App.web3.eth.sendTransaction({
 			from: App.account,
 			to: App.contractAddress,
 			data: data,
-			gasPrice: gasPrice
+		//App.instance.methods.mintToken(App.account, filename, title).send({from: App.account});
 		}).on('transactionHash', (hash) => {
 			console.log(hash);
 			Swal.close();
@@ -389,69 +384,11 @@ App = {
 					})
 				}
 			})
+		}).on('error', (error) =>{
+			console.log(error);
 		}).then((receipt) => {
 			console.log("Successful mint");
 			console.log(receipt);
-
-			Swal.close();
-			Swal.fire({
-				title: 'Minting in progress',
-				text: "The transaction could take several seconds",
-				allowEscapeKey: false,
-				allowOutsideClick: false,
-				timer: 180000,
-				didOpen: () => {
-					Swal.showLoading()
-				}
-			}).then((result) => {
-				if (result.dismiss === Swal.DismissReason.timer) {
-					Swal.fire({
-						icon: "error",
-						title: 'Error!',
-						text: 'Something went wrong while minting this token, please retry.',
-						showConfirmButton:true,
-						confirmButtonColor: '#e27d5f',
-					})
-				}
-			})
-			console.log(receipt)
-
-			inputs = [
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "tokenID",
-					"type": "uint256"
-				},
-				{
-					"indexed": false,
-					"internalType": "address",
-					"name": "userAddress",
-					"type": "address"
-				},
-				{
-					"indexed": false,
-					"internalType": "bytes32",
-					"name": "tokenURI",
-					"type": "bytes32"
-				},
-				{
-					"indexed": false,
-					"internalType": "string",
-					"name": "title",
-					"type": "string"
-				}
-			];
-			console.log("receipt received");
-			var transactionHash = receipt.transactionHash;
-			var data = receipt.logs[1].data;
-			console.log(data);
-			var encodedLogs = receipt.logs[0].topics;
-			var decodedLogs = App.web3.eth.abi.decodeLog(inputs, data, encodedLogs);
-			App.uploadImg(decodedLogs.userAddress, decodedLogs.tokenID,
-				 decodedLogs.tokenURI, decodedLogs.title, transactionHash);
-
-
 		}).catch((error) => {
 			console.log(error);
 			Swal.close();
@@ -463,11 +400,9 @@ App = {
 					showConfirmButton:true,
 					confirmButtonColor: '#e27d5f',
 				})
-				input.value = null;
-				}
-			})
-
-		console.log(promiEvent);
+			input.value = null;
+			}
+		})
 	},
 
 	deleteNFT: function(item){
