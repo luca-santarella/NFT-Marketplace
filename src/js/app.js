@@ -12,45 +12,70 @@ App = {
 	itemsNFTGallery: [],
 
 	initGallery: function(){
-		jQuery(document).ready(function () {
-			$.ajax({
-				type: "GET",
-				url: "/NFT-images",
-				//create array of objs for the gallery
-				success: function(data, textStatus, jqXHR) {
-					data.forEach(NFT => {
-						imageObj = {src: NFT.tokenURI, title: NFT.title, id: NFT.id,
-												description: "Token ID: "+NFT.id+" Owner: "+NFT.owner,
-												tokenID: NFT.id, owner: NFT.owner, divElement: null,
-												txHash: NFT.txHash};
-						App.itemsNFTGallery.push(imageObj);
-					});
-					jQuery("#nanogallery2").nanogallery2( {
-						// ### gallery settings ###
-						thumbnailFillWidth: "fillWidth",
-						thumbnailHeight:  '300 XS300 LA400 XL400',
-						thumbnailWidth:   "350 XS400 LA500 XL500",
-						thumbnailLabel:     { titleFontSize: "20px" },
-						galleryL1FilterTags: true,
-						itemsBaseURL:     '/images/',
-						viewerTools:    {
-        			topLeft:    'label',
-        			topRight:   'rotateLeft, rotateRight, fullscreenButton, closeButton'
-      			},
-						thumbnailGutterHeight: 125,
-						gallerySorting: 'idAsc',
-						// ### callback for loading thumbnail ###
-						fnThumbnailInit: function($thumbnail, item, GOMidx){App.addLowerToolbar($thumbnail, item, GOMidx);},
-						// ### gallery content ###
-						items: App.itemsNFTGallery
-					});
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					alert('Error occurred!');
-				},
-			});
-
+		///check if gallery has been already initialized
+		// if ($("#nanogallery2").children().length > 0 ) {
+		// 	console.log("already init");
+		// 	$.ajax({
+		// 		type: "GET",
+		// 		url: "/NFT-images",
+		// 		//create array of objs for the gallery
+		// 		success: function(data, textStatus, jqXHR) {
+		// 			data.forEach(NFT => {
+		// 				imageObj = {src: NFT.tokenURI, title: NFT.title, id: NFT.id,
+		// 										description: "Token ID: "+NFT.id+" Owner: "+NFT.owner,
+		// 										tokenID: NFT.id, owner: NFT.owner, divElement: null,
+		// 										txHash: NFT.txHash};
+		// 				App.itemsNFTGallery.push(imageObj);
+		// 			});
+		// 			console.log("drawing..");
+		// 			$('#nanogallery2').nanogallery2('data').gallery.items = App.itemsNFTGallery;
+		// 			$('#nanogallery2').nanogallery2('refresh');
+		// 		},
+		// 		error: function(jqXHR, textStatus, errorThrown) {
+		// 			alert('Error occurred!');
+		// 		},
+		// 	});
+		//
+		// }
+		// else {
+		$.ajax({
+			type: "GET",
+			url: "/NFT-images",
+			//create array of objs for the gallery
+			success: function(data, textStatus, jqXHR) {
+				data.forEach(NFT => {
+					imageObj = {src: NFT.tokenURI, title: NFT.title, id: NFT.id,
+											description: "Token ID: "+NFT.id+" Owner: "+NFT.owner,
+											tokenID: NFT.id, owner: NFT.owner, divElement: null,
+											txHash: NFT.txHash};
+					App.itemsNFTGallery.push(imageObj);
+				});
+				console.log("drawing..");
+				$("#nanogallery2").nanogallery2( {
+					// ### gallery settings ###
+					thumbnailFillWidth: "fillWidth",
+					thumbnailHeight:  '300 XS300 LA400 XL400',
+					thumbnailWidth:   "350 XS400 LA500 XL500",
+					thumbnailLabel:     { titleFontSize: "20px" },
+					galleryL1FilterTags: true,
+					itemsBaseURL:     '/images/',
+					viewerTools:    {
+      			topLeft:    'label',
+      			topRight:   'rotateLeft, rotateRight, fullscreenButton, closeButton'
+    			},
+					thumbnailGutterHeight: 125,
+					gallerySorting: 'idAsc',
+					// ### callback for loading thumbnail ###
+					fnThumbnailInit: function($thumbnail, item, GOMidx){App.addLowerToolbar($thumbnail, item, GOMidx);},
+					// ### gallery content ###
+					items: App.itemsNFTGallery
+				});
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				alert('Error occurred!');
+			},
 		});
+	//}
 	},
 
 	addLowerToolbar: function($thumbnail, item, GOMidx){
@@ -78,7 +103,7 @@ App = {
 			.text("Token ID: "+itemArr.id)
 			.appendTo(lowerToolbarText);
 
-		var minOwner = itemArr.owner.substring(0,4) + "..." + itemArr.owner.slice(-4);
+		var minOwner = App.minimizeAddress(itemArr.owner);
 		$("<div>")
 			.text("Owner: "+minOwner)
 			.appendTo(lowerToolbarText);
@@ -90,7 +115,6 @@ App = {
 
 		//user has already connected before image was loaded
 		if(App.account != '0x0' && App.account === itemArr.owner.toLowerCase()){
-			console.log("delete btn will be added (user already connected");
 			lowerToolbarText.css({'width':'70%'});
 			App.addDeleteBtn(lowerToolbar, itemArr);
 		}
@@ -200,16 +224,19 @@ App = {
 					//Store ETH current account
 					App.web3.eth.getCoinbase(function(err,account) {
 						if(err == null) {
-							$('#connectBtnText').text("Connected");
+							App.account = account;
+							const minAddress = App.minimizeAddress(account);
+							$('#connectBtnText').text(minAddress);
 							$('.fa-wallet').css('display', 'none');
-							$('#connectBtn')
-								.prop('disabled', true)
-								.append('<i class="fas fa-link"></i>');
+							if($('#connectBtn').children().length < 3 ){
+								$('#connectBtn')
+									.prop('disabled', true)
+									.append('<i class="fas fa-link"></i>');
+							}
 							$('input').off();
 							$('input').on('change', App.createNFT);
 							$('#connectBtn').off();
 							$('#upload').prop('disabled', false);
-							App.account = account;
 							console.log("account: "+account);
 							App.itemsNFTGallery.forEach(function(itemObj) {
 								if(itemObj.divElement != null && account.toLowerCase() === itemObj.owner.toLowerCase()){
@@ -245,7 +272,6 @@ App = {
 	},
 
 	addDeleteBtn: function(lowerToolbar, item){
-		console.log("inside delete btn");
 		var lowerToolbarBtn = $("<div>")
 			.addClass('lowerToolbarBtn d-flex justify-content-end')
 			.appendTo(lowerToolbar)
@@ -273,6 +299,11 @@ App = {
 		window.ethereum.on('accountsChanged', function (accounts) {
 			console.log("new account is: "+accounts);
 			App.account = accounts;
+			App.web3 = null;
+			App.web3Provider = null;
+			App.web3Modal = null;
+			App.initGallery();
+			App.init();
 		})
 
 		$('input').on('change', App.createNFT);
@@ -589,6 +620,7 @@ App = {
 				}).then((result) => {
 					if(result.isConfirmed)
 						location.reload(true);
+						//App.initGallery();
 				})
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
@@ -659,6 +691,11 @@ App = {
 	      }, 1000);
 	    }
 	  });
+	},
+
+	minimizeAddress: function(address){
+		var minAddress = address.substring(0,4) + "..." + address.slice(-4);
+		return minAddress;
 	}
 }
 
