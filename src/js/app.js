@@ -7,7 +7,7 @@ App = {
 	web3Provider: null, //web3 provider
 	account: '0x0',  //current Ethereum account
 	//smart contract address
-	contractAddress:'0x0302F7a421201Ae0538819400935e61C0122E468',
+	contractAddress:'0x1a84102Af6523CF25763ae396c1A5339a736dd17',
 	instance: null, //instance of the smart contract (already deployed)
 	itemsNFTGallery: [],
 
@@ -90,6 +90,7 @@ App = {
 
 		//user has already connected before image was loaded
 		if(App.account != '0x0' && App.account === itemArr.owner.toLowerCase()){
+			console.log("delete btn will be added (user already connected");
 			lowerToolbarText.css({'width':'70%'});
 			App.addDeleteBtn(lowerToolbar, itemArr);
 		}
@@ -211,7 +212,7 @@ App = {
 							App.account = account;
 							console.log("account: "+account);
 							App.itemsNFTGallery.forEach(function(itemObj) {
-								if(itemObj.divElement != null && account === itemObj.owner.toLowerCase()){
+								if(itemObj.divElement != null && account.toLowerCase() === itemObj.owner.toLowerCase()){
 									lowerToolbarText = itemObj.divElement.find('.lowerToolbarText');
 									lowerToolbarText.css({'width':'70%'});
 
@@ -244,7 +245,7 @@ App = {
 	},
 
 	addDeleteBtn: function(lowerToolbar, item){
-
+		console.log("inside delete btn");
 		var lowerToolbarBtn = $("<div>")
 			.addClass('lowerToolbarBtn d-flex justify-content-end')
 			.appendTo(lowerToolbar)
@@ -262,7 +263,6 @@ App = {
 		$.getJSON('NFTCollection.json').done(function(NFTContract) {
 			//App.web3.eth.Contract.setProvider(App.web3Provider);
 			App.instance = new App.web3.eth.Contract(NFTContract.abi,App.contractAddress);
-			console.log("All done!");
 			return App.listenForEvents();
 		});
 
@@ -272,7 +272,7 @@ App = {
 	listenForEvents: function(){
 		window.ethereum.on('accountsChanged', function (accounts) {
 			console.log("new account is: "+accounts);
-			//TODO
+			App.account = accounts;
 		})
 
 		$('input').on('change', App.createNFT);
@@ -329,13 +329,13 @@ App = {
 		}).then((result) => {
 		  if (result.isConfirmed) {
 				console.log("result is confirmed");
-				// Swal.fire({
-				// 	icon: 'warning',
-				//   title: 'Confirm transaction',
-				// 	timer: 3000,
-				// 	text: "Please confirm the transaction with your wallet",
-				// 	showConfirmButton: false,
-				// })
+				Swal.fire({
+					icon: 'info',
+				  title: 'Confirm transaction',
+					timer: 2000,
+					text: "Please confirm the transaction with your wallet",
+					showConfirmButton: false,
+				})
 		  }
 		})
 		.catch((error) =>{
@@ -346,22 +346,27 @@ App = {
 	},
 
 	mintToken: async function(filename, title){
-		console.log("inside mintToken");
-		gasPrice = 2000000000; //2 Gwei as default
+		//default gasLimit
+		const gasLimit = 200000;
+		//get gas price (determined by the last few blocks median gas price)
+		const gasPrice = await App.web3.eth.getGasPrice();
 
-		//App.web3.eth.getGasPrice(function(gasPrice){console.log(gasPrice);});
+		//estimate gas needed for transaction
+		const gas = await App.instance.methods.mintToken(App.account, filename, title).estimateGas({
+			from: App.account,
+			gas: gasLimit
+		});
+		console.log(gas);
 
 		//get encoded transaction with params
-
 		var data = App.instance.methods.mintToken(App.account, filename, title).encodeABI();
-		// send data to Ethereum blockchain (gasPrice is set automatically with web3.eth.estimateGas)
-		await App.web3.eth.sendTransaction({
+
+		//send data to Ethereum blockchain (gasPrice are not set automatically because of issues with walletconnect)
+		App.instance.methods.mintToken(App.account, filename, title).send({
 			from: App.account,
-			to: App.contractAddress,
-			data: data,
-		//App.instance.methods.mintToken(App.account, filename, title).send({from: App.account});
+			gasPrice: gasPrice,
+			gas:gas,
 		}).on('transactionHash', (hash) => {
-			console.log(hash);
 			Swal.close();
 			Swal.fire({
 				title: 'Minting in progress',
@@ -384,11 +389,44 @@ App = {
 					})
 				}
 			})
-		}).on('error', (error) =>{
-			console.log(error);
-		}).then((receipt) => {
-			console.log("Successful mint");
-			console.log(receipt);
+			App.waitForReceipt(hash, function (receipt) {
+    		Swal.close();
+				inputs = [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenID",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "userAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "bytes32",
+						"name": "tokenURI",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "title",
+						"type": "string"
+					}
+				];
+				console.log("receipt received");
+				var transactionHash = receipt.transactionHash;
+				var data = receipt.logs[1].data;
+				console.log(data);
+				var encodedLogs = receipt.logs[0].topics;
+				var decodedLogs = App.web3.eth.abi.decodeLog(inputs, data, encodedLogs);
+				App.uploadImg(decodedLogs.userAddress, decodedLogs.tokenID,
+					 decodedLogs.tokenURI, decodedLogs.title, transactionHash);
+  		})
+
 		}).catch((error) => {
 			console.log(error);
 			Swal.close();
@@ -400,7 +438,6 @@ App = {
 					showConfirmButton:true,
 					confirmButtonColor: '#e27d5f',
 				})
-			input.value = null;
 			}
 		})
 	},
@@ -417,55 +454,108 @@ App = {
 		}).then((result) => {
 		  if (result.isConfirmed) {
 				Swal.fire({
-					icon: 'warning',
-				  title: 'Burning &#x1f525; in progress',
-					text: "The transaction could take several seconds",
-					allowEscapeKey: false,
-					allowOutsideClick: false,
-					didOpen: () => {
-						Swal.showLoading()
-					}
+					icon: 'info',
+				  title: 'Confirm transaction',
+					timer: 2000,
+					text: "Please confirm the transaction with your wallet",
+					showConfirmButton: false,
 				})
 				App.burnToken(item.tokenID);
 			}
 		})
 	},
 
-	burnToken: function(tokenID){
-		gasPrice = 1999999990; //almost 2 Gwei as default
-		App.web3.eth.getGasPrice(function(error, result){
-			console.log(result);
-			gasPrice = result;
+	burnToken: async function(tokenID){
+		//default gasLimit
+		const gasLimit = 200000;
+		//get gas price (determined by the last few blocks median gas price)
+		const gasPrice = await App.web3.eth.getGasPrice();
+		console.log(gasPrice);
+		//estimate gas needed for transaction
+		const gas = await App.instance.methods.burnToken(tokenID).estimateGas({
+			from: App.account,
+			gas: gasLimit
 		});
+		console.log(gas);
 
 		//get encoded transaction with params
 		var data = App.instance.methods.burnToken(tokenID).encodeABI();
-		App.web3.eth.sendTransaction({
+		console.log(data);
+		//send data to Ethereum blockchain (gasPrice are not set automatically because of issues with walletconnect)
+		App.instance.methods.burnToken(tokenID).send({
 			from: App.account,
-			to: App.contractAddress,
-			data: data,
-			gasPrice: gasPrice
-		}).then((receipt) => {
-			console.log(receipt);
-			console.log("NFT was burned");
-		}).catch(function(err){
-			if(err.code === 4001){
+			gasPrice: gasPrice,
+			gas: gas,
+		}).on('transactionHash', (hash) => {
+			Swal.close();
+			Swal.fire({
+				title: 'Burning &#x1f525; in progress',
+				text: "The transaction could take several seconds",
+				allowEscapeKey: false,
+				allowOutsideClick: false,
+				timer: 180000,
+				didOpen: () => {
+					Swal.showLoading()
+				}
+
+			}).then((result) => {
+				if (result.dismiss === Swal.DismissReason.timer) {
+					Swal.fire({
+						icon: "error",
+						title: 'Error!',
+						text: 'Something went wrong while minting this token, please retry.',
+						showConfirmButton:true,
+						confirmButtonColor: '#e27d5f',
+					})
+				}
+			})
+			App.waitForReceipt(hash, function (receipt) {
+				Swal.close();
+				inputs = [
+	        {
+	          "indexed": false,
+	          "internalType": "uint256",
+	          "name": "tokenID",
+	          "type": "uint256"
+	        },
+	        {
+	          "indexed": false,
+	          "internalType": "address",
+	          "name": "userAddress",
+	          "type": "address"
+	        },
+	        {
+	          "indexed": false,
+	          "internalType": "bytes32",
+	          "name": "tokenURI",
+	          "type": "bytes32"
+	        },
+	        {
+	          "indexed": false,
+	          "internalType": "string",
+	          "name": "title",
+	          "type": "string"
+	        }
+	      ];
+				var transactionHash = receipt.transactionHash;
+				var data = receipt.logs[2].data;
+				console.log(data);
+				var encodedLogs = receipt.logs[0].topics;
+				var decodedLogs = App.web3.eth.abi.decodeLog(inputs, data, encodedLogs);
+				App.deleteImg(decodedLogs.tokenID, decodedLogs.tokenURI);
+			})
+
+		}).catch((error) => {
+			console.log(error);
+			Swal.close();
+			if(error.code === 4001){
 				Swal.fire({
 					icon: "error",
 					title: 'Error!',
-					text: "Please accept the transaction",
+					text: 'You need to accept the transaction to burn the NFT',
 					showConfirmButton:true,
 					confirmButtonColor: '#e27d5f',
-				});
-			}
-			else{
-				Swal.fire({
-					icon: "error",
-					title: 'Error!',
-					text: err.code,
-					showConfirmButton:true,
-					confirmButtonColor: '#e27d5f',
-				});
+				})
 			}
 		});
 	},
@@ -515,14 +605,11 @@ App = {
 		console.log(URL.createObjectURL(file));
 	},
 
-	deleteImg: function (event) {
+	deleteImg: function (tokenID, tokenURI) {
 		console.log("A token has been burned!");
 
 		jsonData = JSON.stringify(
-			{id: event.returnValues.tokenID,
-				tokenURI: event.returnValues.tokenURI,
-				title: event.returnValues.titles
-			}
+			{id: tokenID, tokenURI: tokenURI}
 		);
 
 		$.ajax({
@@ -551,6 +638,27 @@ App = {
 				alert('Something went wrong!');
 			},
 		});
+	},
+
+	waitForReceipt: function (hash, cb) {
+		console.log(hash);
+	  App.web3.eth.getTransactionReceipt(hash, function (err, receipt) {
+	    if (err) {
+	      console.log(err);
+	    }
+
+	    if (receipt !== null) {
+	      console.log(receipt);
+	      if (cb) {
+	        cb(receipt);
+	      }
+	    } else {
+	      // Try again in 1 second
+	      window.setTimeout(function () {
+	        App.waitForReceipt(hash, cb);
+	      }, 1000);
+	    }
+	  });
 	}
 }
 

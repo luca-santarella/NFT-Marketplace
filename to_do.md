@@ -18,4 +18,4 @@
  - [x] no connection to MM and then you create NFT NOT WORKING
  - [x] implement name assignment
  - [x] should title contain empty spaces? YES
- - [ ] App.input is null if user denies tx
+ - [x] App.input is null if user denies tx
