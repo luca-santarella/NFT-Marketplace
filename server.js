@@ -105,7 +105,7 @@ app.get('/',
         res.sendFile(path.join(__dirname, '/src/index.html'));
     });
 
-app.post('/upload', upload.single('image'),
+app.post('/items/upload-item', upload.single('image'),
   function (req, res, next) {
 
     var dict = {id: req.body.id, title: req.body.title, owner: req.body.owner,
@@ -132,7 +132,7 @@ app.post('/upload', upload.single('image'),
     res.send(dict);
   });
 
-app.post('/delete',
+app.post('/items/delete-item',
   function(req, res){
     //delete image associated with the NFT
     fs.unlink("./images/"+req.body.tokenURI, (err => {
@@ -153,7 +153,7 @@ app.post('/delete',
     res.status(200).send(JSON.stringify('Successful deletion'));
   });
 
-app.get('/NFT-images',
+app.get('/items',
   function(req, res){
     db.all(`SELECT tokenID as id,title,owner,tokenURI,txHash
              FROM items WHERE burned = 0;`, [], (err, rows) => {
@@ -165,7 +165,7 @@ app.get('/NFT-images',
     });
   });
 
-app.get('/item-name', // TODO maybe rethink this
+app.get('/items/item',
   function(req, res){
     sqlSearchItem = 'SELECT *\
       FROM items\

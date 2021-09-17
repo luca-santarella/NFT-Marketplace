@@ -7,9 +7,11 @@ App = {
 	web3Provider: null, //web3 provider
 	account: '0x0',  //current Ethereum account
 	//smart contract address
-	contractAddress:'0x1a84102Af6523CF25763ae396c1A5339a736dd17',
+	contractAddress:'0xb7cE16A8491Af057F9ba8dA68931dd5F9652c32E',
 	instance: null, //instance of the smart contract (already deployed)
 	itemsNFTGallery: [],
+	isWalletConnect: false,
+
 
 	initGallery: function(){
 		///check if gallery has been already initialized
@@ -40,7 +42,7 @@ App = {
 		// else {
 		$.ajax({
 			type: "GET",
-			url: "/NFT-images",
+			url: "/items",
 			//create array of objs for the gallery
 			success: function(data, textStatus, jqXHR) {
 				data.forEach(NFT => {
@@ -94,7 +96,7 @@ App = {
 			.appendTo(lowerToolbar)
 			.css({'width':'100%'});
 
-
+		//search element with title as item.title
 		itemArr = App.itemsNFTGallery.find(x => x.title === item.title);
 
 		itemArr.divElement = $thumbnail;
@@ -173,9 +175,11 @@ App = {
 			App.web3Provider = provider;
 		}
 		else{
+
 			console.log("Web3provider not detected");
 			try {
 				App.web3Provider = await App.web3Modal.connect();
+				App.isWalletConnect = true;
 			}
 			catch(err) {
 				console.log(err);
@@ -214,8 +218,9 @@ App = {
 				confirmButtonColor: '#e27d5f',
 			});
 			// Close provider session
-			await App.web3Provider.disconnect()
-			return App.init();
+			if(App.isWalletConnect)
+				await App.web3Provider.disconnect();
+			sessionStorage.setItem('isConnected', false);
 		}
 		else{
 
@@ -235,6 +240,7 @@ App = {
 							}
 							$('input').off();
 							$('input').on('change', App.createNFT);
+							console.log("disabling connect btn");
 							$('#connectBtn').off();
 							$('#upload').prop('disabled', false);
 							console.log("account: "+account);
@@ -298,13 +304,16 @@ App = {
 	listenForEvents: function(){
 		window.ethereum.on('accountsChanged', function (accounts) {
 			console.log("new account is: "+accounts);
-			App.account = accounts;
-			App.web3 = null;
-			App.web3Provider = null;
-			App.web3Modal = null;
-			App.initGallery();
-			App.init();
+			window.location.reload();
+			// App.account = accounts;
+			// App.web3 = null;
+			// App.web3Provider = null;
+			// App.web3Modal = null;
+			// App.initGallery();
+			// App.init();
 		})
+
+		window.ethereum.on('chainChanged', (chainId) => window.location.reload());
 
 		$('input').on('change', App.createNFT);
 
@@ -338,7 +347,7 @@ App = {
 		  preConfirm: (inputTitle) => {
 				return $.ajax({
 					type: "GET",
-					url: "/item-name",
+					url: "/items/item",
 					dataType: "json",
 					data: "title="+inputTitle,
 					success: function(data, textStatus, jqXHR) {
@@ -605,7 +614,7 @@ App = {
 
 		$.ajax({
   		type: "POST",
-  		url: "/upload",
+  		url: "/items/upload-item",
   		data: fd,
 			contentType: false,
 			processData: false,
@@ -646,7 +655,7 @@ App = {
 
 		$.ajax({
   		type: "POST",
-  		url: "/delete",
+  		url: "/items/delete-item",
 			dataType: "json",
 			contentType: "application/json",
   		data: jsonData,
