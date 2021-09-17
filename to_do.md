@@ -4,7 +4,7 @@
  - [x] display tokenID
  - [x] allow deletion (burn) of NFT
  - [x] implement token burn on smart contract
- - [ ] IPFS integration (check Arweave)
+ - [x] IPFS integration (check Arweave)
  - [x] user address is not selectable
  - [x] link to etherscan for the NFT
  - [x] images are not ordered
@@ -19,3 +19,5 @@
  - [x] implement name assignment
  - [x] should title contain empty spaces? YES
  - [x] App.input is null if user denies tx
+ - [ ] change how contractAddress is fetched
+ - [ ] remove infuraKey from client

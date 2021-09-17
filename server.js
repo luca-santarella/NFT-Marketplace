@@ -1,6 +1,9 @@
 //Luca Santarella - NFT Marketplace
 
 /* ### MODULES ### */
+const exec = require('child_process').exec;
+var FormData = require('form-data');
+const axios = require('axios').default;
 var express = require('express');
 var debug = require('debug')('app');
 var path = require('path');
@@ -12,6 +15,8 @@ const GracefulShutdownManager =
   require('@moebius/http-graceful-shutdown').GracefulShutdownManager;
 const sqlite3 = require('sqlite3').verbose();
 const keccak256 = require('keccak256');
+
+var baseUrlIpfs = "http://127.0.0.1:5001/api/v0/";
 
 var app = express();
 
@@ -68,8 +73,10 @@ db.run('CREATE TABLE IF NOT EXISTS items (\
   owner TEXT NOT NULL, \
   tokenURI TEXT NOT NULL, \
   txHash TEXT NOT NULL, \
+  cid TEXT NOT NULL, \
   burned INTEGER NOT NULL DEFAULT 0);');
 
+// const upload = multer({ dest: './images/' })
 
 var storage = multer.diskStorage(
   {
@@ -105,32 +112,40 @@ app.get('/',
         res.sendFile(path.join(__dirname, '/src/index.html'));
     });
 
-app.post('/items/upload-item', upload.single('image'),
+
+app.post('/items/upload-item',upload.single('image'),
   function (req, res, next) {
+    cid = '';
+    exec("ipfs add "+req.file.path, (error, stdout, stderr) => {
+      console.log(stdout);
+      tokens = stdout.split(" ");
+      cid = tokens[1];
+      var dict = {id: req.body.id, title: req.body.title, owner: req.body.owner,
+        tokenURI: newTokenURI, cid: cid};
+      var dictString = JSON.stringify(dict);
 
-    var dict = {id: req.body.id, title: req.body.title, owner: req.body.owner,
-      tokenURI: newTokenURI};
-    var dictString = JSON.stringify(dict);
+      fs.writeFile("./NFTs/"+req.body.title+".json", dictString,
+        function(err, result) {
+        if(err)
+          console.log('error', err);
+      });
 
-    fs.writeFile("./NFTs/"+req.body.title+".json", dictString,
-      function(err, result) {
-      if(err)
-        console.log('error', err);
+      console.log("file has been written");
+      console.log(cid);
+      sqlInsertItem = 'INSERT INTO items (tokenID,title,owner,tokenURI,txHash,cid) \
+        VALUES (?, ?, ?, ?, ?, ?);';
+      db.run(sqlInsertItem, [req.body.id, req.body.title, req.body.owner, newTokenURI, req.body.txHash, cid], function(err) {
+        if (err) {
+          return console.log(err.message);
+        }
+        // get the last insert id
+        console.log(`A row has been inserted with rowid ${this.lastID}`);
+      });
+      res.send(dict);
     });
-
-    console.log("file has been written");
-
-    sqlInsertItem = 'INSERT INTO items (tokenID,title,owner,tokenURI,txHash) \
-      VALUES (?, ?, ?, ?, ?);';
-    db.run(sqlInsertItem, [req.body.id, req.body.title, req.body.owner, newTokenURI, req.body.txHash], function(err) {
-      if (err) {
-        return console.log(err.message);
-      }
-      // get the last insert id
-      console.log(`A row has been inserted with rowid ${this.lastID}`);
-    });
-    res.send(dict);
   });
+
+
 
 app.post('/items/delete-item',
   function(req, res){
