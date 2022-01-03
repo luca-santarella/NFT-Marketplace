@@ -73,7 +73,8 @@ db.run('CREATE TABLE IF NOT EXISTS items (\
   owner TEXT NOT NULL, \
   tokenURI TEXT NOT NULL, \
   txHash TEXT NOT NULL, \
-  cid TEXT NOT NULL, \
+  tokenCID TEXT NOT NULL, \
+  metadataCID TEXT NOT NULL, \
   burned INTEGER NOT NULL DEFAULT 0);');
 
 // const upload = multer({ dest: './images/' })
@@ -112,36 +113,107 @@ app.get('/',
         res.sendFile(path.join(__dirname, '/src/index.html'));
     });
 
-
-app.post('/items/upload-item',upload.single('image'),
-  function (req, res, next) {
-    cid = '';
+app.post('/items/metadata', upload.single('image'),
+  function(req, res, next){
+    tokenCID = '';
+    console.log(req.file.path);
     exec("ipfs add "+req.file.path, (error, stdout, stderr) => {
       console.log(stdout);
-      tokens = stdout.split(" ");
-      cid = tokens[1];
-      var dict = {id: req.body.id, title: req.body.title, owner: req.body.owner,
-        tokenURI: newTokenURI, cid: cid};
+      strTokens = stdout.split(" ");
+      tokenCID = strTokens[1];
+      var nameDict = {
+        type: "string",
+        description: req.body.title
+      }
+      var descriptionDict = {
+        type:"string",
+        description: "The title of this NFT is "+req.body.title
+      }
+      var imageDict = {
+        type: "string",
+        description: "https://ipfs.io/ipfs/"+tokenCID
+      }
+      var propertiesDict = {
+        name: nameDict,
+        description: descriptionDict,
+        image: imageDict
+      }
+      var dict = {name: req.body.title,
+        description: "NFTCollection NFT", title: req.body.title,
+        owner: req.body.owner,
+        image: "https://ipfs.io/ipfs/"+tokenCID, properties: propertiesDict};
       var dictString = JSON.stringify(dict);
-
-      fs.writeFile("./NFTs/"+req.body.title+".json", dictString,
+      var metadataPath = "./tokens/"+req.body.title+".json";
+      fs.writeFile(metadataPath, dictString,
         function(err, result) {
         if(err)
           console.log('error', err);
       });
 
-      console.log("file has been written");
-      console.log(cid);
-      sqlInsertItem = 'INSERT INTO items (tokenID,title,owner,tokenURI,txHash,cid) \
-        VALUES (?, ?, ?, ?, ?, ?);';
-      db.run(sqlInsertItem, [req.body.id, req.body.title, req.body.owner, newTokenURI, req.body.txHash, cid], function(err) {
-        if (err) {
-          return console.log(err.message);
-        }
-        // get the last insert id
-        console.log(`A row has been inserted with rowid ${this.lastID}`);
+      metadataCID = '';
+      exec("ipfs add "+metadataPath, (error, stdout, stderr) => {
+        console.log(stdout);
+        tokens = stdout.split(" ");
+        metadataCID = tokens[1];
+        res.send(metadataCID);
       });
-      res.send(dict);
+    });
+  })
+
+app.post('/items/upload-item',upload.single('image'),
+  function (req, res, next) {
+    tokenCID = '';
+    exec("ipfs add "+req.file.path, (error, stdout, stderr) => {
+      console.log(stdout);
+      tokens = stdout.split(" ");
+      tokenCID = tokens[1];
+      var nameDict = {
+        type: "string",
+        description: req.body.title
+      }
+      var descriptionDict = {
+        type:"string",
+        description: "The title of this NFT is "+req.body.title
+      }
+      var imageDict = {
+        type: "string",
+        description: "https://ipfs.io/ipfs/"+tokenCID
+      }
+      var propertiesDict = {
+        name: nameDict,
+        description: descriptionDict,
+        image: imageDict
+      }
+      var dict = {id: req.body.id, name: req.body.title,
+        description: "NFTCollection NFT", title: req.body.title,
+        owner: req.body.owner, tokenURI: newTokenURI,
+        image: "https://ipfs.io/ipfs/"+tokenCID, properties: propertiesDict};
+      var dictString = JSON.stringify(dict);
+      metadataPath = "./NFTs/"+req.body.title+".json";
+      fs.writeFile(metadataPath, dictString,
+        function(err, result) {
+        if(err)
+          console.log('error', err);
+      });
+
+      metadataCID = '';
+      exec("ipfs add "+metadataPath, (error, stdout, stderr) => {
+        console.log(stdout);
+        tokens = stdout.split(" ");
+        metadataCID = tokens[1];
+        sqlInsertItem = 'INSERT INTO items (tokenID,title,owner, \
+          tokenURI,txHash,tokenCID, metadataCID) \
+          VALUES (?, ?, ?, ?, ?, ?, ?);';
+        db.run(sqlInsertItem, [req.body.id, req.body.title, req.body.owner,
+          newTokenURI, req.body.txHash, tokenCID, metadataCID], function(err) {
+          if (err) {
+            return console.log(err.message);
+          }
+          // get the last insert id
+          console.log(`A row has been inserted with rowid ${this.lastID}`);
+        });
+        res.send(dict);
+      });
     });
   });
 

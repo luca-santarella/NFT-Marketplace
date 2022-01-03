@@ -24,6 +24,7 @@ let secrets = require('./secrets');
 
 let mainNetMnemonic= secrets.mainnetMnemonic;
 let ropstenKey = secrets.ropstenKey;
+let rinkebyKey = secrets.rinkebyKey;
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 //
 
@@ -68,7 +69,17 @@ module.exports = {
       provider: () => new HDWalletProvider(ropstenKey, "wss://ropsten.infura.io/ws/v3/"+secrets.infuraKey),
       network_id: 3,       // Ropsten's id
       gas: 5500000,        // Ropsten has a lower block limit than mainnet
-      gasPrice: 20000000000,
+      gasPrice: 10000000000,
+      confirmations: 0,    // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 2000,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true,     // Skip dry run before migrations? (default: false for public nets )
+      networkCheckTimeout: 999999,
+    },
+    rinkeby: {
+      provider: () => new HDWalletProvider(ropstenKey, "wss://rinkeby.infura.io/ws/v3/"+secrets.infuraKey),
+      network_id: 4,       // Ropsten's id
+      gas: 5500000,        // Ropsten has a lower block limit than mainnet
+      gasPrice: 10000000000,
       confirmations: 0,    // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 2000,  // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true,     // Skip dry run before migrations? (default: false for public nets )

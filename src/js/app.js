@@ -7,7 +7,7 @@ App = {
 	web3Provider: null, //web3 provider
 	account: '0x0',  //current Ethereum account
 	//smart contract address
-	contractAddress:'0x0F369658A4b4f2A696e5Fd049119Dc6E7508bAFd',
+	contractAddress:'0x29e345B7855BAE6a21C1701D23eab4A9ba0FAE4b',
 	instance: null, //instance of the smart contract (already deployed)
 	itemsNFTGallery: [],
 	isWalletConnect: false,
@@ -110,7 +110,7 @@ App = {
 			.text("Owner: "+minOwner)
 			.appendTo(lowerToolbarText);
 
-		var txEtherscan = "https://ropsten.etherscan.io/tx/"+itemArr.txHash;
+		var txEtherscan = "https://rinkeby.etherscan.io/tx/"+itemArr.txHash;
 		$("<div>")
 			.html('Tx: <a href="'+txEtherscan+'">Check on Etherscan</a>')
 			.appendTo(lowerToolbarText);
@@ -153,6 +153,7 @@ App = {
 		// Web3modal instance
 		App.web3Modal;
 
+
 		const providerOptions = {
 	    walletconnect: {
 	      package: WalletConnectProvider,
@@ -161,6 +162,7 @@ App = {
 	      }
 	    },
 		};
+
 
 		App.web3Modal = new Web3Modal({
 	    cacheProvider: true,
@@ -208,7 +210,7 @@ App = {
 		// Get connected chain id from Ethereum node
 	  const netId = await App.web3.eth.getChainId();
 		console.log(netId);
-		if(netId != 3){ //Ropsten testnet chain ID is 3
+		if(netId != 4){ //Rinkeby testnet chain ID is 4
 			$('#upload').prop('disabled', true);
 			Swal.fire({
   			icon: 'error',
@@ -333,6 +335,7 @@ App = {
 		file = curFiles[0];
 		filename = file.name;
 		var title = '';
+		var tokenURI = '';
 		Swal.fire({
 		  title: 'Enter a name for your NFT',
 		  input: 'text',
@@ -363,7 +366,35 @@ App = {
 						title = inputTitle;
 					},
 				})
-				.catch(function(){App.mintToken(filename, title);})
+				.catch(function(){
+					var fd = new FormData();
+					fd.append('image', file, filename);
+					fd.append('owner', App.account);
+					fd.append('title', title);
+
+					$.ajax({
+						type: "POST",
+						url: "/items/metadata",
+						data: fd,
+						contentType: false,
+						processData: false,
+						success: function(data, textStatus, jqXHR) {
+							console.log(textStatus);
+							console.log(data);
+							tokenURI = "https://ipfs.io/ipfs/"+data; //IPFS hash of the metadata of the token
+							App.mintToken(title, tokenURI);
+						},
+						error: function(jqXHR, textStatus, errorThrown) {
+							Swal.fire({
+								icon: "error",
+								title: 'Error!',
+								text: "Something went wrong..",
+								showConfirmButton:true,
+								confirmButtonColor: '#e27d5f',
+							});
+						},
+					});
+				})
 		  },
 		  //allowOutsideClick: () => false
 		}).then((result) => {
@@ -385,24 +416,24 @@ App = {
 
 	},
 
-	mintToken: async function(filename, title){
+	mintToken: async function(title, tokenURI){
 		//default gasLimit
-		const gasLimit = 200000;
+		const gasLimit = 250000;
 		//get gas price (determined by the last few blocks median gas price)
 		const gasPrice = await App.web3.eth.getGasPrice();
 
 		//estimate gas needed for transaction
-		const gas = await App.instance.methods.mintToken(App.account, filename, title).estimateGas({
+		const gas = await App.instance.methods.mintToken(App.account, title, tokenURI).estimateGas({
 			from: App.account,
 			gas: gasLimit
 		});
 		console.log(gas);
 
 		//get encoded transaction with params
-		var data = App.instance.methods.mintToken(App.account, filename, title).encodeABI();
+		//var data = App.instance.methods.mintToken(App.account, title, tokenURI).encodeABI();
 
 		//send data to Ethereum blockchain (gasPrice are not set automatically because of issues with walletconnect)
-		App.instance.methods.mintToken(App.account, filename, title).send({
+		App.instance.methods.mintToken(App.account, title, tokenURI).send({
 			from: App.account,
 			gasPrice: gasPrice,
 			gas:gas,
@@ -519,8 +550,8 @@ App = {
 		console.log(gas);
 
 		//get encoded transaction with params
-		var data = App.instance.methods.burnToken(tokenID).encodeABI();
-		console.log(data);
+		//var data = App.instance.methods.burnToken(tokenID).encodeABI();
+		//console.log(data);
 		//send data to Ethereum blockchain (gasPrice are not set automatically because of issues with walletconnect)
 		App.instance.methods.burnToken(tokenID).send({
 			from: App.account,
