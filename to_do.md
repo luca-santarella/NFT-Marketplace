@@ -21,3 +21,4 @@
  - [x] App.input is null if user denies tx
  - [x] change how contractAddress is fetched (not needed)
  - [ ] remove infuraKey from client
+ - [ ] make disconnect button for wallet

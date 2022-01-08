@@ -23,8 +23,11 @@ let secrets = require('./secrets');
 //const Wallet = require('ethereumjs-wallet');
 
 let mainNetMnemonic= secrets.mainnetMnemonic;
-let ropstenKey = secrets.ropstenKey;
-let rinkebyKey = secrets.rinkebyKey;
+let ropstenKey = secrets.accountKey;
+let rinkebyKey = secrets.accountKey;
+let bsc_testnetKey = secrets.accountKey;
+let moralisKey = secrets.moralisKey;
+
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 //
 
@@ -65,6 +68,13 @@ module.exports = {
     // },
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
+    testnet: {
+      provider: () => new HDWalletProvider(bsc_testnetKey, "https://data-seed-prebsc-1-s1.binance.org:8545"),
+      network_id: 97,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
     ropsten: {
       provider: () => new HDWalletProvider(ropstenKey, "wss://ropsten.infura.io/ws/v3/"+secrets.infuraKey),
       network_id: 3,       // Ropsten's id

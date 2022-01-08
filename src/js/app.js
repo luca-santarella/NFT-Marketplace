@@ -7,7 +7,7 @@ App = {
 	web3Provider: null, //web3 provider
 	account: '0x0',  //current Ethereum account
 	//smart contract address
-	contractAddress:'0x29e345B7855BAE6a21C1701D23eab4A9ba0FAE4b',
+	contractAddress: '0x971C2E26886acD07670de7c7E5C74E893f626361', //'0x29e345B7855BAE6a21C1701D23eab4A9ba0FAE4b',
 	instance: null, //instance of the smart contract (already deployed)
 	itemsNFTGallery: [],
 	isWalletConnect: false,
@@ -110,9 +110,9 @@ App = {
 			.text("Owner: "+minOwner)
 			.appendTo(lowerToolbarText);
 
-		var txEtherscan = "https://rinkeby.etherscan.io/tx/"+itemArr.txHash;
+		var txEtherscan = "https://testnet.bscscan.com/tx/"+itemArr.txHash;
 		$("<div>")
-			.html('Tx: <a href="'+txEtherscan+'">Check on Etherscan</a>')
+			.html('Tx: <a href="'+txEtherscan+'" target="_blank">Check on BSCscan</a>')
 			.appendTo(lowerToolbarText);
 
 		//user has already connected before image was loaded
@@ -210,12 +210,12 @@ App = {
 		// Get connected chain id from Ethereum node
 	  const netId = await App.web3.eth.getChainId();
 		console.log(netId);
-		if(netId != 4){ //Rinkeby testnet chain ID is 4
+		if(netId != 97){ //BSC testnet chain ID is 97
 			$('#upload').prop('disabled', true);
 			Swal.fire({
   			icon: 'error',
   			title: 'Warning',
-  			text: 'Please select the Ropsten testnet',
+  			text: 'Please select the BSC testnet',
 				showConfirmButton:true,
 				confirmButtonColor: '#e27d5f',
 			});
