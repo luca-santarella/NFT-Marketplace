@@ -3,3 +3,6 @@ secrets.js
 /images/*
 /NFTs/*
 /db/*
+/tokens/*
+cert.pem
+key.pem
