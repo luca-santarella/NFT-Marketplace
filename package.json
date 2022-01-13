@@ -34,6 +34,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.3",
     "nanogallery2": "^3.0.5",
+    "sanitize-filename": "^1.6.3",
     "sqlite3": "^5.0.2",
     "sweetalert2": "^11.1.4",
     "web3": "^1.5.2",

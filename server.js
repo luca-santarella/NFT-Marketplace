@@ -1,6 +1,7 @@
 //Luca Santarella - NFT Marketplace
 
 /* ### MODULES ### */
+var sanitize = require("sanitize-filename");
 const exec = require('child_process').exec;
 var FormData = require('form-data');
 const axios = require('axios').default;
@@ -20,7 +21,6 @@ var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
 var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
 
 var credentials = {key: privateKey, cert: certificate};
-
 
 var baseUrlIpfs = "http://127.0.0.1:5001/api/v0/";
 
@@ -124,6 +124,7 @@ app.get('/',
 
 app.post('/items/metadata', upload.single('image'),
   function(req, res, next){
+    sanitizedTitle = sanitize(req.body.title);
     tokenCID = '';
     console.log(req.file.path);
     exec("ipfs add "+req.file.path, (error, stdout, stderr) => {
@@ -132,11 +133,11 @@ app.post('/items/metadata', upload.single('image'),
       tokenCID = strTokens[1];
       var nameDict = {
         type: "string",
-        description: req.body.title
+        description: sanitizedTitle
       }
       var descriptionDict = {
         type:"string",
-        description: "The title of this NFT is "+req.body.title
+        description: "The title of this NFT is "+sanitizedTitle
       }
       var imageDict = {
         type: "string",
@@ -147,12 +148,12 @@ app.post('/items/metadata', upload.single('image'),
         description: descriptionDict,
         image: imageDict
       }
-      var dict = {name: req.body.title,
-        description: "NFTCollection NFT", title: req.body.title,
+      var dict = {name: sanitizedTitle,
+        description: "NFTCollection NFT", title: sanitizedTitle,
         owner: req.body.owner,
         image: "https://ipfs.io/ipfs/"+tokenCID, properties: propertiesDict};
       var dictString = JSON.stringify(dict);
-      var metadataPath = "./tokens/"+req.body.title+".json";
+      var metadataPath = "./tokens/"+sanitizedTitle+".json";
       fs.writeFile(metadataPath, dictString,
         function(err, result) {
         if(err)
@@ -171,6 +172,7 @@ app.post('/items/metadata', upload.single('image'),
 
 app.post('/items/upload-item',upload.single('image'),
   function (req, res, next) {
+    sanitizedTitle = sanitize(req.body.title);
     tokenCID = '';
     exec("ipfs add "+req.file.path, (error, stdout, stderr) => {
       console.log(stdout);
@@ -178,11 +180,11 @@ app.post('/items/upload-item',upload.single('image'),
       tokenCID = tokens[1];
       var nameDict = {
         type: "string",
-        description: req.body.title
+        description: sanitizedTitle
       }
       var descriptionDict = {
         type:"string",
-        description: "The title of this NFT is "+req.body.title
+        description: "The title of this NFT is "+sanitizedTitle
       }
       var imageDict = {
         type: "string",
@@ -193,12 +195,12 @@ app.post('/items/upload-item',upload.single('image'),
         description: descriptionDict,
         image: imageDict
       }
-      var dict = {id: req.body.id, name: req.body.title,
-        description: "NFTCollection NFT", title: req.body.title,
+      var dict = {id: req.body.id, name: sanitizedTitle,
+        description: "NFTCollection NFT", title: sanitizedTitle,
         owner: req.body.owner, tokenURI: newTokenURI,
         image: "https://ipfs.io/ipfs/"+tokenCID, properties: propertiesDict};
       var dictString = JSON.stringify(dict);
-      metadataPath = "./NFTs/"+req.body.title+".json";
+      metadataPath = "./NFTs/"+sanitizedTitle+".json";
       fs.writeFile(metadataPath, dictString,
         function(err, result) {
         if(err)
@@ -213,7 +215,7 @@ app.post('/items/upload-item',upload.single('image'),
         sqlInsertItem = 'INSERT INTO items (tokenID,title,owner, \
           tokenURI,txHash,tokenCID, metadataCID) \
           VALUES (?, ?, ?, ?, ?, ?, ?);';
-        db.run(sqlInsertItem, [req.body.id, req.body.title, req.body.owner,
+        db.run(sqlInsertItem, [req.body.id, sanitizedTitle, req.body.owner,
           newTokenURI, req.body.txHash, tokenCID, metadataCID], function(err) {
           if (err) {
             return console.log(err.message);
