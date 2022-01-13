@@ -9,12 +9,18 @@ var debug = require('debug')('app');
 var path = require('path');
 var fs = require('fs');
 var http = require('http');
+var https = require('https');
 var morgan = require('morgan')
 const multer  = require('multer'); //module used for multipart data
 const GracefulShutdownManager =
   require('@moebius/http-graceful-shutdown').GracefulShutdownManager;
 const sqlite3 = require('sqlite3').verbose();
 const keccak256 = require('keccak256');
+var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
+var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
+
+var credentials = {key: privateKey, cert: certificate};
+
 
 var baseUrlIpfs = "http://127.0.0.1:5001/api/v0/";
 
@@ -29,6 +35,9 @@ var server = app.listen(port,
     var port = server.address().port;
     console.log('Listening at http://%s:%s', host, port);
 });
+
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(8080);
 
 const shutdownManager = new GracefulShutdownManager(server);
 

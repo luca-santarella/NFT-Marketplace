@@ -158,7 +158,11 @@ App = {
 	    walletconnect: {
 	      package: WalletConnectProvider,
 	      options: {
-	        infuraId: "a4de77d4c2894e2387ff4432d935587e", //TODO
+					rpc: {
+						97: "https://data-seed-prebsc-1-s1.binance.org:8545/",
+						// ...
+					},
+	        //infuraId: "a4de77d4c2894e2387ff4432d935587e", //TODO
 	      }
 	    },
 		};
