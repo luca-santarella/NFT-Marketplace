@@ -4,5 +4,4 @@ secrets.js
 /NFTs/*
 /db/*
 /tokens/*
-cert.pem
-key.pem
+/sslcert/*
