@@ -8,8 +8,8 @@
  - [x] user address is not selectable
  - [x] link to etherscan for the NFT
  - [x] images are not ordered
- - [ ] check uploaded files
- - [ ] normalize filename
+ - [x] check uploaded files
+ - [x] normalize filename
  - [x] hide mnemonic and infura's key
  - [x] handle account change in Metamask (interface)
  - [x] handle network change in Metamask
@@ -20,5 +20,5 @@
  - [x] should title contain empty spaces? YES
  - [x] App.input is null if user denies tx
  - [x] change how contractAddress is fetched (not needed)
- - [ ] remove infuraKey from client
+ - [x] remove infuraKey from client
  - [ ] make disconnect button for wallet
