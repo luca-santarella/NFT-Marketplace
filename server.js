@@ -94,6 +94,10 @@ var storage = multer.diskStorage(
     filename: function( req, file, cb ) {
       hashedFilename = keccak256(file.originalname).toString('hex');
       var extension = file.originalname.split('.').pop();
+      console.log(extension);
+      if(extension !== 'png' && extension !== 'jpg' && extension !== 'gif' && extension !== 'jpeg'){
+            cb(new Error('Only images are allowed'));
+      }
       newTokenURI = hashedFilename +'.' + extension;
       cb(null, newTokenURI);
     }
