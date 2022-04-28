@@ -127,8 +127,7 @@ App = {
 	init: function() {
 
 		var isConnected = sessionStorage.getItem('isConnected');
-
-		if (isConnected){
+		if (isConnected === "true"){
 			return App.initWeb3();
 		}
 
@@ -241,13 +240,13 @@ App = {
 							$('.fa-wallet').css('display', 'none');
 							if($('#connectBtn').children().length < 3 ){
 								$('#connectBtn')
-									.prop('disabled', true)
+									//.prop('disabled', true)
 									.append('<i class="fas fa-link"></i>');
 							}
 							$('input').off();
 							$('input').on('change', App.createNFT);
 							console.log("disabling connect btn");
-							$('#connectBtn').off();
+							$('#connectBtn').on('click',App.disconnectAccount);
 							$('#upload').prop('disabled', false);
 							console.log("account: "+account);
 							App.itemsNFTGallery.forEach(function(itemObj) {
@@ -293,6 +292,14 @@ App = {
 			.addClass('btn btn-outline-danger btn-sm')
 			.text("DELETE")
 			.appendTo(lowerToolbarBtn);
+	},
+
+	disconnectAccount: function(){
+		//TODO: check all resets
+		sessionStorage.setItem('isConnected', false);
+		App.account = '0x0';
+		console.log("account disconnected");
+		location.reload(true);
 	},
 
 	initContract: function(){
@@ -542,7 +549,7 @@ App = {
 
 	burnToken: async function(tokenID){
 		//default gasLimit
-		const gasLimit = 200000;
+		const gasLimit = 100000;
 		//get gas price (determined by the last few blocks median gas price)
 		const gasPrice = await App.web3.eth.getGasPrice();
 		console.log(gasPrice);

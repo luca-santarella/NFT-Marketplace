@@ -21,4 +21,6 @@
  - [x] App.input is null if user denies tx
  - [x] change how contractAddress is fetched (not needed)
  - [x] remove infuraKey from client
- - [ ] make disconnect button for wallet
+ - [x] make disconnect button for wallet
+ - [ ] optimize gas cost (100%??)
+ - [ ] multiple mint option [alienz, CA rule, own pic]
