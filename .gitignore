@@ -1,6 +1,5 @@
 /node_modules/*
 secrets.js
-/images/*
 /NFTs/*
 /db/*
 /tokens/*
