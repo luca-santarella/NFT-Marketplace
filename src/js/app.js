@@ -188,25 +188,14 @@ App = {
 			}
 			catch(err) {
 				console.log(err);
-				if(err==="Modal closed by user"){
-					Swal.fire({
-						icon: 'error',
-						title: 'Oops...',
-						text: 'A Web3 provider was not selected',
-						showConfirmButton:true,
-						confirmButtonColor: '#e27d5f',
-					})
-				}
-				else{
-					Swal.fire({
-						icon: 'error',
-						title: 'Oops...',
-						text: 'A Web3 provider was not found',
-						showConfirmButton:true,
-						confirmButtonColor: '#e27d5f',
-						footer: '<a href="https://metamask.io/download.html">Install a web3 provider such as Metamask</a>'
-					})
-				}
+				Swal.fire({
+					icon: 'error',
+					title: 'Oops...',
+					text: 'A Web3 provider was not selected',
+					showConfirmButton:true,
+					confirmButtonColor: '#e27d5f',
+					footer: '<a href="https://metamask.io/download.html">Install a web3 provider such as Metamask</a>'
+				})
 			}
 		}
 		App.web3 = new Web3(App.web3Provider);
