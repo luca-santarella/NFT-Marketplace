@@ -180,6 +180,7 @@ app.post('/items/upload-item',upload.single('image'),
     tokenCID = '';
     exec("ipfs add "+req.file.path, (error, stdout, stderr) => {
       console.log(stdout);
+      console.log(stderr);
       tokens = stdout.split(" ");
       tokenCID = tokens[1];
       var nameDict = {
@@ -214,6 +215,7 @@ app.post('/items/upload-item',upload.single('image'),
       metadataCID = '';
       exec("ipfs add "+metadataPath, (error, stdout, stderr) => {
         console.log(stdout);
+        console.log(stderr);
         tokens = stdout.split(" ");
         metadataCID = tokens[1];
         sqlInsertItem = 'INSERT INTO items (tokenID,title,owner, \

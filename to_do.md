@@ -22,5 +22,5 @@
  - [x] change how contractAddress is fetched (not needed)
  - [x] remove infuraKey from client
  - [x] make disconnect button for wallet
- - [ ] optimize gas cost (100%??)
- - [ ] multiple mint option [alienz, CA rule, own pic]
+ - [x] optimize gas cost (100%??)
+ - [ ] button to change network
