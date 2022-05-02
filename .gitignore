@@ -1,4 +1,6 @@
 /node_modules/*
 secrets.js
+/db/*
+/NFTs/*
 /tokens/*
 /sslcert/*
