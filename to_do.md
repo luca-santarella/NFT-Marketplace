@@ -23,4 +23,4 @@
  - [x] remove infuraKey from client
  - [x] make disconnect button for wallet
  - [x] optimize gas cost (100%??)
- - [ ] button to change network
+ - [x] button to change network
