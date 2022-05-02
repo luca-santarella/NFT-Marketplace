@@ -198,6 +198,7 @@ App = {
 				})
 			}
 		}
+
 		App.web3 = new Web3(App.web3Provider);
 		// Get connected chain id from Ethereum node
 	  const netId = await App.web3.eth.getChainId();
@@ -211,6 +212,29 @@ App = {
 				showConfirmButton:true,
 				confirmButtonColor: '#e27d5f',
 			});
+			try{
+				await window.ethereum.request({
+					method: 'wallet_addEthereumChain',
+					params: [
+	          {
+	            chainId: '0x61',
+							chainName: 'Smart Chain - Testnet',
+							nativeCurrency: {
+								name: 'Binance',
+								symbol: 'BNB', // 2-6 characters long
+								decimals: 18,
+							},
+							blockExplorerUrls: ['https://testnet.bscscan.com'],
+	            rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
+	          },
+					],
+				})
+				App.initWeb3();
+			}
+			catch (addError){
+				console.error(addError);
+			}
+
 			// Close provider session
 			if(App.isWalletConnect)
 				await App.web3Provider.disconnect();
