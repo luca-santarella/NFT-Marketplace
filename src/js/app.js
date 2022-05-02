@@ -7,7 +7,7 @@ App = {
 	web3Provider: null, //web3 provider
 	account: '0x0',  //current Ethereum account
 	//smart contract address
-	contractAddress: '0x596421f958FDc98EBc516501AcB3f561625350E1', //'0x29e345B7855BAE6a21C1701D23eab4A9ba0FAE4b',
+	contractAddress: '0x1a84102Af6523CF25763ae396c1A5339a736dd17', //'0x29e345B7855BAE6a21C1701D23eab4A9ba0FAE4b',
 	instance: null, //instance of the smart contract (already deployed)
 	itemsNFTGallery: [],
 	isWalletConnect: false,
