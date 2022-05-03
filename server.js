@@ -259,6 +259,9 @@ app.post('/items/delete-item',
 
 app.get('/items',
   function(req, res){
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, \
+                Content-Type, Accept");
     db.all(`SELECT tokenID as id,title,owner,tokenURI,txHash
              FROM items WHERE burned = 0;`, [], (err, rows) => {
       if (err) {

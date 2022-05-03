@@ -11,7 +11,7 @@ App = {
 	instance: null, //instance of the smart contract (already deployed)
 	itemsNFTGallery: [],
 	isWalletConnect: false,
-
+	baseUrl: '',
 
 	initGallery: function(){
 		///check if gallery has been already initialized
@@ -42,7 +42,7 @@ App = {
 		// else {
 		$.ajax({
 			type: "GET",
-			url: "/items",
+			url: baseUrl+"/items",
 			//create array of objs for the gallery
 			success: function(data, textStatus, jqXHR) {
 				data.forEach(NFT => {
@@ -374,7 +374,7 @@ App = {
 		  preConfirm: (inputTitle) => {
 				return $.ajax({
 					type: "GET",
-					url: "/items/item",
+					url: baseUrl+"/items/item",
 					dataType: "json",
 					data: "title="+inputTitle,
 					success: function(data, textStatus, jqXHR) {
@@ -398,7 +398,7 @@ App = {
 
 					$.ajax({
 						type: "POST",
-						url: "/items/metadata",
+						url: baseUrl+"/items/metadata",
 						data: fd,
 						contentType: false,
 						processData: false,
@@ -669,7 +669,7 @@ App = {
 
 		$.ajax({
   		type: "POST",
-  		url: "/items/upload-item",
+  		url: baseUrl+"/items/upload-item",
   		data: fd,
 			contentType: false,
 			processData: false,
@@ -710,7 +710,7 @@ App = {
 
 		$.ajax({
   		type: "POST",
-  		url: "/items/delete-item",
+  		url: baseUrl+"/items/delete-item",
 			dataType: "json",
 			contentType: "application/json",
   		data: jsonData,
