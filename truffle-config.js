@@ -71,10 +71,10 @@ module.exports = {
     testnet: {
       provider: () => new HDWalletProvider(bsc_testnetKey, "https://data-seed-prebsc-2-s1.binance.org:8545"),
       network_id: 97,
-      confirmations: 10,
+      confirmations: 1,
       timeoutBlocks: 200,
       skipDryRun: true,
-      networkCheckTimeout: 999999
+      networkCheckTimeout: 99999
     },
     ropsten: {
       provider: () => new HDWalletProvider(ropstenKey, "wss://ropsten.infura.io/ws/v3/"+secrets.infuraKey),

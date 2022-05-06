@@ -7,7 +7,7 @@ App = {
 	web3Provider: null, //web3 provider
 	account: '0x0',  //current Ethereum account
 	//smart contract address
-	contractAddress: '0x5fc4fC926ceDbEDaABae1A444292052b8d51F359', //'0x29e345B7855BAE6a21C1701D23eab4A9ba0FAE4b',
+	contractAddress: '0x5Fc25f00fc0413CCCbca3aC200D30285641c0803', //'0x29e345B7855BAE6a21C1701D23eab4A9ba0FAE4b',
 	instance: null, //instance of the smart contract (already deployed)
 	itemsNFTGallery: [],
 	isWalletConnect: false,
@@ -414,7 +414,7 @@ App = {
 				Swal.fire({
 					icon: 'info',
 				  title: 'Confirm transaction',
-					timer: 2000,
+					timer: 5000,
 					text: "Please confirm the transaction with your wallet",
 					showConfirmButton: false,
 				})
