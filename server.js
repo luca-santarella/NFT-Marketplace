@@ -186,9 +186,10 @@ app.post('/items/upload-item',upload.single('image'),
     tokenCID = '';
     exec("ipfs add "+req.file.path, (error, stdout, stderr) => {
       console.log(error);
-      if error != '':
+      if (error != null){
         res.status(500);
-        res.send("Could not add image to IPFS");
+        res.send("Could not add metadata to IPFS");
+      }
       console.log(stdout);
       console.log(stderr);
       tokens = stdout.split(" ");
@@ -215,7 +216,7 @@ app.post('/items/upload-item',upload.single('image'),
         owner: req.body.owner, tokenURI: newTokenURI,
         image: "https://ipfs.io/ipfs/"+tokenCID, properties: propertiesDict};
       var dictString = JSON.stringify(dict);
-      metadataPath = "./NFTs/"+sanitizedTitle+".json";
+      metadataPath = "./NFTs/"+sanitizedTitle.replaceAll(' ', '_')+".json";
       fs.writeFile(metadataPath, dictString,
         function(err, result) {
         if(err)
@@ -226,9 +227,10 @@ app.post('/items/upload-item',upload.single('image'),
       exec("ipfs add "+metadataPath, (error, stdout, stderr) => {
         console.log(stdout);
         console.log(error);
-        if error != '':
+        if (error != null){
           res.status(500);
           res.send("Could not add metadata to IPFS");
+        }
         console.log(stderr);
         tokens = stdout.split(" ");
         metadataCID = tokens[1];
