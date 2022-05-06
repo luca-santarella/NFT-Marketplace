@@ -186,7 +186,7 @@ app.post('/items/upload-item',upload.single('image'),
     tokenCID = '';
     exec("ipfs add "+req.file.path, (error, stdout, stderr) => {
       console.log(error);
-      if error:
+      if error != '':
         res.status(500);
         res.send("Could not add image to IPFS");
       console.log(stdout);
@@ -226,7 +226,7 @@ app.post('/items/upload-item',upload.single('image'),
       exec("ipfs add "+metadataPath, (error, stdout, stderr) => {
         console.log(stdout);
         console.log(error);
-        if error:
+        if error != '':
           res.status(500);
           res.send("Could not add metadata to IPFS");
         console.log(stderr);
