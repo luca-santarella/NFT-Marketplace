@@ -94,7 +94,6 @@ var storage = multer.diskStorage(
     filename: function( req, file, cb ) {
       hashedFilename = keccak256(file.originalname).toString('hex');
       var extension = file.originalname.split('.').pop();
-      console.log(extension);
       if(extension !== 'png' && extension !== 'jpg' && extension !== 'gif' && extension !== 'jpeg'){
             cb(new Error('Only images are allowed'));
       }
@@ -186,8 +185,11 @@ app.post('/items/upload-item',upload.single('image'),
     console.log("sanitizedTitle: "+sanitizedTitle);
     tokenCID = '';
     exec("ipfs add "+req.file.path, (error, stdout, stderr) => {
-      console.log(stdout);
       console.log(error);
+      if error:
+        res.status(500);
+        res.send("Could not add image to IPFS");
+      console.log(stdout);
       console.log(stderr);
       tokens = stdout.split(" ");
       tokenCID = tokens[1];
@@ -223,7 +225,10 @@ app.post('/items/upload-item',upload.single('image'),
       metadataCID = '';
       exec("ipfs add "+metadataPath, (error, stdout, stderr) => {
         console.log(stdout);
-	console.log(error);
+        console.log(error);
+        if error:
+          res.status(500);
+          res.send("Could not add metadata to IPFS");
         console.log(stderr);
         tokens = stdout.split(" ");
         metadataCID = tokens[1];
