@@ -39,34 +39,34 @@ var server = app.listen(port,
 var httpsServer = https.createServer(credentials, app);
 httpsServer.listen(443);
 
-const shutdownManager = new GracefulShutdownManager(server);
-
-/* handle SIGINT and SIGTERM signals */
-process.on('SIGINT', () => {
-  shutdownManager.terminate(() => {
-    console.log('Server received SIGINT');
-    console.log('Closing SQlite server');
-    db.close((err) => {
-      if (err) {
-        return console.error(err.message);
-      }
-      console.log('Close the database connection.');
-    });
-  });
-});
-
-process.on('SIGTERM', () => {
-  shutdownManager.terminate(() => {
-    console.log('Server received SIGTERM');
-    console.log('Closing SQlite server');
-    db.close((err) => {
-      if (err) {
-        return console.error(err.message);
-      }
-      console.log('Close the database connection.');
-    });
-  });
-});
+// const shutdownManager = new GracefulShutdownManager(server);
+//
+// /* handle SIGINT and SIGTERM signals */
+// process.on('SIGINT', () => {
+//   shutdownManager.terminate(() => {
+//     console.log('Server received SIGINT');
+//     console.log('Closing SQlite server');
+//     db.close((err) => {
+//       if (err) {
+//         return console.error(err.message);
+//       }
+//       console.log('Close the database connection.');
+//     });
+//   });
+// });
+//
+// process.on('SIGTERM', () => {
+//   shutdownManager.terminate(() => {
+//     console.log('Server received SIGTERM');
+//     console.log('Closing SQlite server');
+//     db.close((err) => {
+//       if (err) {
+//         return console.error(err.message);
+//       }
+//       console.log('Close the database connection.');
+//     });
+//   });
+// });
 
 let db = new sqlite3.Database('./db/popnft.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
   if (err) {
