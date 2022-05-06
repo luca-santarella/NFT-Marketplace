@@ -7,11 +7,11 @@ App = {
 	web3Provider: null, //web3 provider
 	account: '0x0',  //current Ethereum account
 	//smart contract address
-	contractAddress: '0x1a84102Af6523CF25763ae396c1A5339a736dd17', //'0x29e345B7855BAE6a21C1701D23eab4A9ba0FAE4b',
+	contractAddress: '0x5fc4fC926ceDbEDaABae1A444292052b8d51F359', //'0x29e345B7855BAE6a21C1701D23eab4A9ba0FAE4b',
 	instance: null, //instance of the smart contract (already deployed)
 	itemsNFTGallery: [],
 	isWalletConnect: false,
-	baseUrl: '',
+
 
 	initGallery: function(){
 		///check if gallery has been already initialized
@@ -42,7 +42,7 @@ App = {
 		// else {
 		$.ajax({
 			type: "GET",
-			url: baseUrl+"/items",
+			url: "/items",
 			//create array of objs for the gallery
 			success: function(data, textStatus, jqXHR) {
 				data.forEach(NFT => {
@@ -161,6 +161,15 @@ App = {
 						97: "https://data-seed-prebsc-1-s1.binance.org:8545/",
 						// ...
 					},
+					qrcodeModalOptions: {
+				    		mobileLinks: [
+				      		"rainbow",
+				      		"argent",
+				     		 "trust",
+				     		 "imtoken",
+				     		 "pillar",
+				    		],
+				  	},
 	        //infuraId: "a4de77d4c2894e2387ff4432d935587e", //TODO
 	      }
 	    },
@@ -198,7 +207,6 @@ App = {
 				})
 			}
 		}
-
 		App.web3 = new Web3(App.web3Provider);
 		// Get connected chain id from Ethereum node
 	  const netId = await App.web3.eth.getChainId();
@@ -212,29 +220,6 @@ App = {
 				showConfirmButton:true,
 				confirmButtonColor: '#e27d5f',
 			});
-			try{
-				await window.ethereum.request({
-					method: 'wallet_addEthereumChain',
-					params: [
-	          {
-	            chainId: '0x61',
-							chainName: 'Smart Chain - Testnet',
-							nativeCurrency: {
-								name: 'Binance',
-								symbol: 'BNB', // 2-6 characters long
-								decimals: 18,
-							},
-							blockExplorerUrls: ['https://testnet.bscscan.com'],
-	            rpcUrls: ['https://data-seed-prebsc-1-s1.binance.org:8545/'],
-	          },
-					],
-				})
-				App.initWeb3();
-			}
-			catch (addError){
-				console.error(addError);
-			}
-
 			// Close provider session
 			if(App.isWalletConnect)
 				await App.web3Provider.disconnect();
@@ -307,10 +292,12 @@ App = {
 			.appendTo(lowerToolbarBtn);
 	},
 
-	disconnectAccount: function(){
+	disconnectAccount: async function(){
 		//TODO: check all resets
 		sessionStorage.setItem('isConnected', false);
 		App.account = '0x0';
+		if(App.isWalletConnect)
+		await App.web3Provider.disconnect();
 		console.log("account disconnected");
 		location.reload(true);
 	},
@@ -374,7 +361,7 @@ App = {
 		  preConfirm: (inputTitle) => {
 				return $.ajax({
 					type: "GET",
-					url: baseUrl+"/items/item",
+					url: "/items/item",
 					dataType: "json",
 					data: "title="+inputTitle,
 					success: function(data, textStatus, jqXHR) {
@@ -398,7 +385,7 @@ App = {
 
 					$.ajax({
 						type: "POST",
-						url: baseUrl+"/items/metadata",
+						url: "/items/metadata",
 						data: fd,
 						contentType: false,
 						processData: false,
@@ -463,6 +450,7 @@ App = {
 			gas:gas,
 		}).on('transactionHash', (hash) => {
 			Swal.close();
+			console.log("got transaction hash");
 			Swal.fire({
 				title: 'Minting in progress',
 				text: "The transaction could take several seconds",
@@ -669,7 +657,7 @@ App = {
 
 		$.ajax({
   		type: "POST",
-  		url: baseUrl+"/items/upload-item",
+  		url: "/items/upload-item",
   		data: fd,
 			contentType: false,
 			processData: false,
@@ -710,7 +698,7 @@ App = {
 
 		$.ajax({
   		type: "POST",
-  		url: baseUrl+"/items/delete-item",
+  		url: "/items/delete-item",
 			dataType: "json",
 			contentType: "application/json",
   		data: jsonData,

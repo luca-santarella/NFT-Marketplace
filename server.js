@@ -17,8 +17,8 @@ const GracefulShutdownManager =
   require('@moebius/http-graceful-shutdown').GracefulShutdownManager;
 const sqlite3 = require('sqlite3').verbose();
 const keccak256 = require('keccak256');
-var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
-var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
+var privateKey  = fs.readFileSync('/etc/letsencrypt/live/popnft.eu/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/popnft.eu/fullchain.pem', 'utf8');
 
 var credentials = {key: privateKey, cert: certificate};
 
@@ -26,8 +26,8 @@ var baseUrlIpfs = "http://127.0.0.1:5001/api/v0/";
 
 var app = express();
 
-/* listen on port localhost:3000 */
-var port = process.env.PORT || 3000;
+/* listen on port 80 */
+var port = process.env.PORT || 80;
 debug("Using port ", port);
 var server = app.listen(port,
   function() {
@@ -37,7 +37,7 @@ var server = app.listen(port,
 });
 
 var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(8080);
+httpsServer.listen(443);
 
 const shutdownManager = new GracefulShutdownManager(server);
 
@@ -128,6 +128,9 @@ app.get('/',
 
 app.post('/items/metadata', upload.single('image'),
   function(req, res, next){
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, \
+                Content-Type, Accept");
     sanitizedTitle = sanitize(req.body.title);
     tokenCID = '';
     console.log(req.file.path);
@@ -176,10 +179,15 @@ app.post('/items/metadata', upload.single('image'),
 
 app.post('/items/upload-item',upload.single('image'),
   function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, \
+                Content-Type, Accept");
     sanitizedTitle = sanitize(req.body.title);
+    console.log("sanitizedTitle: "+sanitizedTitle);
     tokenCID = '';
     exec("ipfs add "+req.file.path, (error, stdout, stderr) => {
       console.log(stdout);
+      console.log(error);
       console.log(stderr);
       tokens = stdout.split(" ");
       tokenCID = tokens[1];
@@ -215,6 +223,7 @@ app.post('/items/upload-item',upload.single('image'),
       metadataCID = '';
       exec("ipfs add "+metadataPath, (error, stdout, stderr) => {
         console.log(stdout);
+	console.log(error);
         console.log(stderr);
         tokens = stdout.split(" ");
         metadataCID = tokens[1];
@@ -238,6 +247,9 @@ app.post('/items/upload-item',upload.single('image'),
 
 app.post('/items/delete-item',
   function(req, res){
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, \
+                Content-Type, Accept");
     //delete image associated with the NFT
     fs.unlink("./images/"+req.body.tokenURI, (err => {
       if (err)
@@ -274,6 +286,9 @@ app.get('/items',
 
 app.get('/items/item',
   function(req, res){
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, \
+                Content-Type, Accept");
     sqlSearchItem = 'SELECT *\
       FROM items\
       WHERE title = ?';

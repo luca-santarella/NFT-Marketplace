@@ -69,11 +69,12 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     testnet: {
-      provider: () => new HDWalletProvider(bsc_testnetKey, "https://data-seed-prebsc-1-s1.binance.org:8545"),
+      provider: () => new HDWalletProvider(bsc_testnetKey, "https://data-seed-prebsc-2-s1.binance.org:8545"),
       network_id: 97,
       confirmations: 10,
       timeoutBlocks: 200,
-      skipDryRun: true
+      skipDryRun: true,
+      networkCheckTimeout: 999999
     },
     ropsten: {
       provider: () => new HDWalletProvider(ropstenKey, "wss://ropsten.infura.io/ws/v3/"+secrets.infuraKey),
