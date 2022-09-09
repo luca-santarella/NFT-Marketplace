@@ -17,10 +17,10 @@ const GracefulShutdownManager =
   require('@moebius/http-graceful-shutdown').GracefulShutdownManager;
 const sqlite3 = require('sqlite3').verbose();
 const keccak256 = require('keccak256');
-var privateKey  = fs.readFileSync('/etc/letsencrypt/live/popnft.eu/privkey.pem', 'utf8');
-var certificate = fs.readFileSync('/etc/letsencrypt/live/popnft.eu/fullchain.pem', 'utf8');
+// var privateKey  = fs.readFileSync('/etc/letsencrypt/live/popnft.eu/privkey.pem', 'utf8');
+// var certificate = fs.readFileSync('/etc/letsencrypt/live/popnft.eu/fullchain.pem', 'utf8');
 
-var credentials = {key: privateKey, cert: certificate};
+//var credentials = {key: privateKey, cert: certificate};
 
 var baseUrlIpfs = "http://127.0.0.1:5001/api/v0/";
 
@@ -36,8 +36,8 @@ var server = app.listen(port,
     console.log('Listening at http://%s:%s', host, port);
 });
 
-var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(443);
+// var httpsServer = https.createServer(credentials, app);
+// httpsServer.listen(443);
 
 // const shutdownManager = new GracefulShutdownManager(server);
 //
