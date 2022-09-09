@@ -88,10 +88,10 @@ db.run('CREATE TABLE IF NOT EXISTS items (\
 
 // const upload = multer({ dest: './images/' })
 
-exec("ipfs init "+req.file.path, (error, stdout, stderr) => {
-  exec("ipfs daemon "+req.file.path, (error, stdout, stderr) => {
-  }
-}
+exec("ipfs init", (error, stdout, stderr) => {
+  exec("ipfs daemon", (error, stdout, stderr) => {
+  })
+})
 
 var storage = multer.diskStorage(
   {
